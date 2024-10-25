@@ -15,6 +15,7 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 
+mod util;
 mod machine;
 mod control_algorithms;
 mod population;

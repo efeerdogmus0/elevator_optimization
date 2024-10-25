@@ -9,6 +9,7 @@
 - [x] Motor parametreleri
 - [x] License (copyleft)
 
+- [ ] Update freq devre dışı bırak
 - [ ] Grafik plot, pid ve testler için inanılmaz önemli
 - [ ] Büyük motor güncellemesinden sonra elevator kodları elden geçmeli
 - [ ] asansör height pid limitleri ayarla

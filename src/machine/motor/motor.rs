@@ -60,7 +60,7 @@ impl ElevatorMotor {
         let current_properties = MotorSamples::simulate_properties_from_current(&motor_samples, 0.)
             .unwrap();
 
-        Ok( 
+        Ok(
             Self {
                 motor_samples,
                 gearbox_ratio: parameters.gearbox_ratio,

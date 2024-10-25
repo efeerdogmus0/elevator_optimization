@@ -3,7 +3,7 @@ pid_parameters:
     ki: 0.
     kd: 0.
     integral_limit: 0.
-    update_freq: f64,
+    update_freq: 30.
 
     #   Bu iki kısıtlama kod içinde 
     # belirleniyor, bunları atamanın bir anlamı yok
@@ -16,6 +16,8 @@ pid_parameters:
     # Akım artış azalışını kısıtlayarak ivmeyi sınırlandırabiliyoruz
     #   Onun dışında, çalışma frekansı yerine saniyeye bağlı olduğu 
     # için pid frekansı değiştiğine bu değeri değiştirmemiz gerekmiyor
+
+    enable_debug_plotting: true
 
 gearbox_ratio: 1.
 output_shaft_radius: 10.

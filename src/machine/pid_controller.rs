@@ -2,6 +2,7 @@
 // Copyright (C) 2024 Tuna Gül
 
 use serde::Deserialize;
+use crate::util::LinePlotter;
 
 
 // this struct is for parsing the pid parameters from a yaml file
@@ -14,6 +15,8 @@ pub struct PIDParameters {
     update_freq: f32,
     tolerance: f32,
 
+    #[serde(default = "default_enable_debug_plotting")]
+    enable_debug_plotting: bool,
     #[serde(default = "default_enable_target_limits")]
     enable_target_limits: bool,
     #[serde(default = "default_max_target")]
@@ -30,6 +33,7 @@ pub struct PIDParameters {
     change_limit: f32,
 }
 
+fn default_enable_debug_plotting() -> bool { false }
 fn default_enable_target_limits() -> bool { false }
 fn default_min_target() -> f32 { 0. }
 fn default_max_target() -> f32 { 0. }
@@ -59,6 +63,7 @@ pub struct PIDController {
     accumulated_time: f32, // to keep at constant frequency
     update_freq: f32,
     tolerance: f32,
+    line_plotter: LinePlotter,
 }
 
 impl PIDController {
@@ -79,6 +84,7 @@ impl PIDController {
             parameters.max_output,
             parameters.min_output,
             parameters.change_limit,
+            parameters.enable_debug_plotting,
         )
     }
 
@@ -96,6 +102,7 @@ impl PIDController {
         max_output: f32,
         min_output: f32,
         change_limit: f32,
+        enable_debug_plotting: bool,
     ) -> Self {
         Self {
             target: 0.0,
@@ -116,6 +123,7 @@ impl PIDController {
             accumulated_time: 0.0,
             update_freq,
             tolerance,
+            line_plotter: LinePlotter::new(enable_debug_plotting),
         }
     }
 
