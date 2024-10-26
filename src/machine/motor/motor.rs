@@ -31,7 +31,7 @@ impl ElevatorMotor {
         parameters: MotorParameters,
     ) -> Result<Self, Box<dyn Error>> {
 
-        let mut speed_pid: PIDController = PIDController::from_parameters(parameters.pid_parameters);        
+        let mut speed_pid: PIDController = PIDController::new(parameters.pid_parameters);        
         let motor_samples = MotorSamples::from_file(parameters.sample_path.as_str())?;
 
         // hız limitleri

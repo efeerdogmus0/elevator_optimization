@@ -1,11 +1,16 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2024 Tuna Gül
+
+use std::error::Error;
 use serde::Deserialize;
 
-use super::pid_controller::PIDParameters;
+use crate::machine::pid_controller::PIDParameters;
+use crate::machine::motor::MotorParameters;
 
 #[derive(Debug, Deserialize)]
 pub struct ElevatorParameters {
     pub pid_parameters: PIDParameters,
-    pub floors: Vec<f32>,
+    pub motor_parameters: MotorParameters,
     pub max_speed: f32,
     pub max_accel: f32,
     pub max_load: f32,
@@ -36,3 +41,11 @@ pub struct ElevatorParameters {
 
 fn default_enable_debug_plotting() -> bool { false }
 fn default_plot_path() -> String { "motor_plot.png".to_string() }
+
+impl ElevatorParameters {
+    pub fn from_file(file_path: &str) -> Result<Self, Box<dyn Error>> {
+        let file = std::fs::File::open(file_path)?;
+        let result = serde_yaml::from_reader(file)?;
+        Ok(result)
+    }
+}

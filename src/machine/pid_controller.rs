@@ -74,49 +74,12 @@ pub struct PIDController {
 }
 
 impl PIDController {
-    pub fn from_parameters(
+    pub fn new(
         parameters: PIDParameters,
     ) -> Self {
-        Self::new(
-            parameters.kp, 
-            parameters.ki, 
-            parameters.kd, 
-            parameters.integral_limit,
-            parameters.update_freq,
-            parameters.tolerance,
-            parameters.enable_target_limits,
-            parameters.max_target,
-            parameters.min_target,
-            parameters.enable_output_limits,
-            parameters.max_output,
-            parameters.min_output,
-            parameters.change_limit,
-            parameters.enable_debug_plotting,
-            parameters.plot_path,
-        )
-    }
-
-    pub fn new(
-        kp: f32, 
-        ki: f32, 
-        kd: f32, 
-        integral_limit: f32,
-        update_freq: f32,
-        tolerance: f32,
-        enable_target_limits: bool,
-        max_target: f32,
-        min_target: f32,
-        enable_output_limits: bool,
-        max_output: f32,
-        min_output: f32,
-        change_limit: f32,
-        enable_debug_plotting: bool,
-        plot_path: String,
-    ) -> Self {
-
         // line plotterı yarat
-        let line_plotter = if enable_debug_plotting {
-            let plot_rv = LinePlotter::new(plot_path);
+        let line_plotter = if parameters.enable_debug_plotting {
+            let plot_rv = LinePlotter::new(parameters.plot_path);
             match plot_rv {
                 Ok(line_plotter) => {
                     println!("Plotter created");
@@ -134,23 +97,23 @@ impl PIDController {
 
         Self {
             target: 0.0,
-            kp,
-            ki,
-            kd,
-            integral_limit,
-            enable_target_limits,
-            max_target,
-            min_target,
-            enable_output_limits,
-            max_output,
-            min_output,
-            change_limit,
+            kp: parameters.kp,
+            ki: parameters.ki,
+            kd: parameters.kd,
+            integral_limit: parameters.integral_limit,
+            enable_target_limits: parameters.enable_target_limits,
+            max_target: parameters.max_target,
+            min_target: parameters.min_target,
+            enable_output_limits: parameters.enable_output_limits,
+            max_output: parameters.max_output,
+            min_output: parameters.min_output,
+            change_limit: parameters.change_limit,
             prev_error: 0.0,
             integral: 0.0,
             prev_output: 0.0,
             accumulated_time: 0.0,
-            update_freq,
-            tolerance,
+            update_freq: parameters.update_freq,
+            tolerance: parameters.tolerance,
             line_plotter,
         }
     }
