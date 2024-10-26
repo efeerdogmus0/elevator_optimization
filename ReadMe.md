@@ -61,6 +61,11 @@ Motor içinde hızı ayarlamak için pid algoritması var, bu pid algoritması �
 hız arasındaki farktan vermek istediğimiz akımı belirliyor, bu verdiğimiz akımı kullanarak hem 
 harcadığımız enerjiyi ölçüyoruz hem de yeni hızımızı hesaplıyoruz
 
+Motor sample dosyası verebileceğimiz tüm akım aralığının datasını içeremeyeceği için aradaki boşlukları 
+en yakın iki nokta arasında çizgi çekip noktayı xteki input olarak kullanıp buluyor.
+buna interpolation deniyomuş yeni öğrendim ben manuel hesaplamıştım ama yapması için bi kütüphane 
+olabilir bakmak lazım
+
 Motor classımızda gearbox ratio var ve bu dışarıdan hız hesaplarken ve dışarıya hız çıktısı verirken 
 hesaplamaya dahil ediliyor (motor şaftının rpminden elevator hızı hesaplamak için). Bunun yanı sıra 
 dış kasnağın çevresini de kullanıyoruz. 
