@@ -75,14 +75,14 @@ mod tests {
 
     #[test]
     fn test_initialization() {
-        let output_file = "test_plot.png".to_string();
+        let output_file = "data/debug/line_plotter_test.png".to_string();
         let plotter = LinePlotter::new(output_file);
         assert!(plotter.is_ok(), "LinePlotter failed to initialize.");
     }
 
     #[test]
     fn test_add_point() {
-        let output_file = "test_plot.png".to_string();
+        let output_file = "data/debug/line_plotter_test.png".to_string();
         let mut plotter = LinePlotter::new(output_file).expect("Failed to initialize LinePlotter");
 
         plotter.add_point(1.0);
@@ -91,7 +91,7 @@ mod tests {
 
     #[test]
     fn test_update() {
-        let output_file = "test_plot.png";
+        let output_file = "data/debug/line_plotter_test.png";
         let mut plotter = LinePlotter::new(output_file.to_string()).expect("Failed to initialize LinePlotter");
 
         // Add some points and update the plot

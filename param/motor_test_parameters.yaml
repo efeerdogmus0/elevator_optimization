@@ -1,7 +1,7 @@
 pid_parameters:
     kp: 0.176
     ki: 0.
-    kd: 0.
+    kd: 0.001
     integral_limit: 0.
     update_freq: 30.
     tolerance: 10.
