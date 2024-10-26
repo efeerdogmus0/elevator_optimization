@@ -53,6 +53,8 @@ impl Elevator {
             0.,
             0.,
             1.,
+            false,
+            "".to_string(),
         );
         // let speed_pid = PIDController::new(1., 0., 0., 30., 0.);
         let motor = ElevatorMotor::from_file(

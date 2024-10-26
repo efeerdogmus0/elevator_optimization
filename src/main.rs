@@ -20,6 +20,7 @@ mod machine;
 mod control_algorithms;
 mod population;
 
+use util::LinePlotter;
 use machine::elevator_system::ElevatorSystem;
 
 use std::thread;
@@ -44,7 +45,6 @@ fn main() {
         println!("Energy consumed so far: {}", system.total_energy_consumed);
         println!("Elevator height: {}", system.elevators[0].current_height);
         // println!("Elevator speed: {}, target: {}", system.elevators[0].get_current_speed(), system.elevators[0].motor.speed_pid.target);
-
 
         if start_time.elapsed() >= Duration::from_secs(2) && !has_target_set {
             system.elevators[0].set_target(3);

@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2024 Tuna Gül
 
+use csv::Error;
 use serde::Deserialize;
 use crate::util::LinePlotter;
 
@@ -17,23 +18,29 @@ pub struct PIDParameters {
 
     #[serde(default = "default_enable_debug_plotting")]
     enable_debug_plotting: bool,
+    #[serde(default = "default_plot_path")]
+    plot_path: String,
+
     #[serde(default = "default_enable_target_limits")]
     enable_target_limits: bool,
     #[serde(default = "default_max_target")]
     max_target: f32,
     #[serde(default = "default_min_target")]
     min_target: f32,
+
     #[serde(default = "default_enable_output_limits")]
     enable_output_limits: bool,
     #[serde(default = "default_max_output")]
     max_output: f32,
     #[serde(default = "default_min_output")]
     min_output: f32,
+
     #[serde(default = "default_change_limit")]
     change_limit: f32,
 }
 
 fn default_enable_debug_plotting() -> bool { false }
+fn default_plot_path() -> String { "pid_plot.png".to_string() }
 fn default_enable_target_limits() -> bool { false }
 fn default_min_target() -> f32 { 0. }
 fn default_max_target() -> f32 { 0. }
@@ -63,7 +70,7 @@ pub struct PIDController {
     accumulated_time: f32, // to keep at constant frequency
     update_freq: f32,
     tolerance: f32,
-    line_plotter: LinePlotter,
+    line_plotter: Option<LinePlotter>,
 }
 
 impl PIDController {
@@ -85,6 +92,7 @@ impl PIDController {
             parameters.min_output,
             parameters.change_limit,
             parameters.enable_debug_plotting,
+            parameters.plot_path,
         )
     }
 
@@ -103,7 +111,27 @@ impl PIDController {
         min_output: f32,
         change_limit: f32,
         enable_debug_plotting: bool,
+        plot_path: String,
     ) -> Self {
+
+        // line plotterı yarat
+        let line_plotter = if enable_debug_plotting {
+            let plot_rv = LinePlotter::new(plot_path);
+            match plot_rv {
+                Ok(line_plotter) => {
+                    println!("Plotter created");
+                    Some(line_plotter)
+                },
+                Err(e) => {
+                    println!("Error creating plotter: {}", e);
+                    None
+                }
+            }
+        } else {
+            None
+        };
+
+
         Self {
             target: 0.0,
             kp,
@@ -123,7 +151,7 @@ impl PIDController {
             accumulated_time: 0.0,
             update_freq,
             tolerance,
-            line_plotter: LinePlotter::new(enable_debug_plotting),
+            line_plotter,
         }
     }
 
@@ -187,29 +215,8 @@ impl PIDController {
     pub fn has_reached_target(&self, current_value: f32) -> bool {
         (self.target - current_value).abs() < self.tolerance
     }
-
-    pub fn update(&mut self, current_value: f32, delta_time: f32) -> f32 {
-        // Accumulate the time
-        self.accumulated_time += delta_time;
-
-        // Check if enough time has passed for an update (based on frequency)
-        if self.accumulated_time < (1.0 / self.update_freq) {
-            // If not enough time has passed, return the last output
-            return self.prev_output;
-        }
-
-        // Reset accumulated time after enough time has passed
-        self.accumulated_time = 0.0;
-
-        let error = self.target - current_value;
-
-        // Proportional term
-        let proportional = self.kp * error;
-
-        // Integral term with clamping
-        self.integral += error * delta_time;
-
-        // Apply the integral limit
+    
+    fn limit_integral(&mut self) {
         if self.integral_limit != 0. {
             if self.integral > self.integral_limit {
                 self.integral = self.integral_limit;
@@ -217,10 +224,44 @@ impl PIDController {
                 self.integral = -self.integral_limit;
             }
         }
+    }
+
+    fn limit_output(&mut self, output: f32) -> f32 {
+        if self.enable_output_limits {
+            if output < self.min_output {
+                return self.min_output;
+            } else if output > self.max_output {
+                return self.max_output;
+            }
+        } 
+        output
+    }
+
+    fn limit_output_change(&mut self, output: f32, current_value: f32, delta_time: f32) -> f32 {
+        if self.change_limit != 0. {
+            if (output - current_value).abs()/delta_time > self.change_limit {
+                if output > current_value {
+                    return current_value + self.change_limit * delta_time;
+                } else {
+                    return current_value - self.change_limit * delta_time;
+                }
+            }
+        }
+        output
+    }
+
+    fn calculate(&mut self, current_value: f32, delta_time: f32) -> f32 {
+        let error = self.target - current_value;
+
+        // Proportional term
+        let proportional = self.kp * error;
+
+        // Integral term with clamping
+        self.integral += error * delta_time;
+        self.limit_integral();
 
         // Calculate the integral contribution to the output
         let integral = self.ki * self.integral;
-
 
         // Derivative term
         let derivative = if delta_time > 0.0 {
@@ -235,25 +276,43 @@ impl PIDController {
 
         // Calculate the output
         let mut output = proportional + integral + derivative;
+        output = self.limit_output(output);
+        output = self.limit_output_change(output, self.prev_output, delta_time);
 
-        // Check if the output is within limits
-        if self.enable_output_limits {
-            if output < self.min_output {
-                output = self.min_output;
-            } else if output > self.max_output {
-                output = self.max_output;
-            }
-        } 
+        output
+    }
 
-        if self.change_limit != 0. {
-            if (output - current_value).abs()/delta_time > self.change_limit {
-                if output > current_value {
-                    output = current_value + self.change_limit * delta_time;
-                } else {
-                    output = current_value - self.change_limit * delta_time;
-                }
-            }
+    fn check_frequency(&mut self, delta_time: f32) -> bool {
+        // Accumulate the time
+        self.accumulated_time += delta_time;
+
+        // Check if enough time has passed for an update (based on frequency)
+        if self.accumulated_time < (1.0 / self.update_freq) {
+            // If not enough time has passed, return the last output
+            // return self.prev_output;
+            return false;
         }
+
+        // Reset accumulated time after enough time has passed
+        self.accumulated_time = 0.0;
+        return true;
+    }
+
+    fn plot(&mut self, output: f32) {
+        if let Some(line_plotter) = &mut self.line_plotter {
+            line_plotter.add_point(output);
+            line_plotter.update().unwrap();
+        }
+    }
+
+    pub fn update(&mut self, current_value: f32, delta_time: f32) -> f32 {
+        // yeterli zaman geçmediyse önceki çıktıyı döndür
+        if !self.check_frequency(delta_time) {
+            return self.prev_output;
+        }
+
+        let output = self.calculate(current_value, delta_time);
+        self.plot(output);
 
         // Return the output
         self.prev_output = output;
