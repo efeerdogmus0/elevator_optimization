@@ -105,6 +105,10 @@ impl ElevatorMotor {
         self.current_properties.rpm
     }
 
+    pub fn get_target_speed(&self) -> f32 {
+        self.speed_pid.target / self.gearbox_ratio
+    }
+
     pub fn get_current_speed(&self) -> f32 {
         // this function gives the speed of the output shaft of the gear box
         self.get_rpm() / self.gearbox_ratio
@@ -138,9 +142,11 @@ impl ElevatorMotor {
         }
     }
 
-    pub fn update(&mut self, delta_time: f32) {
+    pub fn update_energy_used(&mut self, delta_time: f32) {
         self.total_energy_used += self.current_properties.kwp_in * delta_time;
+    }
 
+    pub fn update(&mut self, delta_time: f32) {
         let current_change = self.speed_pid.update(self.get_rpm(), delta_time);
         self.current_current += current_change;
 

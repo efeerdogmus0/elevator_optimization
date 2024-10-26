@@ -24,7 +24,7 @@ pub struct MotorParameters {
 }
 
 fn default_enable_debug_plotting() -> bool { false }
-fn default_plot_path() -> String { "motor_plot.png".to_string() }
+fn default_plot_path() -> String { "data/debug/motor_plot.png".to_string() }
 
 
 impl MotorParameters {

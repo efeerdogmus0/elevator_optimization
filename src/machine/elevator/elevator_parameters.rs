@@ -40,12 +40,23 @@ pub struct ElevatorParameters {
 }
 
 fn default_enable_debug_plotting() -> bool { false }
-fn default_plot_path() -> String { "motor_plot.png".to_string() }
+fn default_plot_path() -> String { "data/debug/elevator_plot.png".to_string() }
 
 impl ElevatorParameters {
     pub fn from_file(file_path: &str) -> Result<Self, Box<dyn Error>> {
         let file = std::fs::File::open(file_path)?;
         let result = serde_yaml::from_reader(file)?;
         Ok(result)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn read() {
+        let parameters = ElevatorParameters::from_file("param/elevator_test_parameters.yaml").unwrap();
+        println!("{:?}", parameters);
     }
 }

@@ -9,15 +9,17 @@
 - [x] Motor parametreleri
 - [x] License (copyleft)
 - [x] Grafik plot, pid ve testler için inanılmaz önemli
+- [x] Motor PID
+- [x] Büyük motor güncellemesinden sonra elevator kodları elden geçmeli
+- [x] asansör height pid limitleri ayarla
+- [x] Popülasyon temelleri
 
-- [ ] Update freq devre dışı bırak
-- [ ] Büyük motor güncellemesinden sonra elevator kodları elden geçmeli
-- [ ] asansör height pid limitleri ayarla
-- [ ] Motor PID
+- [ ] Yiğitin popülasyon hesaplamalarını geçir
+
+- [ ] Update freq devre dışı bırak (bunu niye yazdığımı unuttum)
 - [ ] Kasnak çevre hız hesabı
 - [ ] gearbox test et
 - [ ] motor yükü kaldırabiliyor mu test et (motorda max force var)
-
 
 
 # Uzak Gelecek

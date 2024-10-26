@@ -4,4 +4,6 @@
 mod pid_controller;
 mod motor;
 mod elevator;
+
 pub mod elevator_system;
+pub use elevator::Elevator;

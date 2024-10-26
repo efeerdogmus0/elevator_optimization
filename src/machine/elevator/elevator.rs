@@ -4,12 +4,12 @@
 use crate::machine::pid_controller::PIDController;
 use crate::machine::motor::ElevatorMotor;
 use super::elevator_parameters::ElevatorParameters;
+use crate::util::LinePlotter;
 
 use std::error::Error;
 
 pub struct Elevator {
     pub floors: Vec<f32>, // floor heights, taken from elevator controller
-    pub is_idle: bool,
     pub current_height: f32,
     pub current_accel: f32,
     pub height_pid: PIDController,
@@ -23,6 +23,7 @@ pub struct Elevator {
     pub motor: ElevatorMotor,
     // simulation-related
     pub gravity: f32,
+    line_plotter: Option<LinePlotter>,
 }
 
 
@@ -50,9 +51,25 @@ impl Elevator {
         let height_pid = PIDController::new(parameters.pid_parameters);
         let motor = ElevatorMotor::new(parameters.motor_parameters).unwrap();
 
+        // line plotterı yarat
+        let line_plotter = if parameters.enable_debug_plotting {
+            let plot_rv = LinePlotter::new(parameters.plot_path);
+            match plot_rv {
+                Ok(line_plotter) => {
+                    println!("Plotter created");
+                    Some(line_plotter)
+                },
+                Err(e) => {
+                    println!("Error creating plotter: {}", e);
+                    None
+                }
+            }
+        } else {
+            None
+        };
+
         Self {
             floors,
-            is_idle: true,
             current_height: 0.0,
             current_accel: 0.0,
             height_pid,
@@ -64,6 +81,7 @@ impl Elevator {
             current_load: 0.0,
             motor,
             gravity,
+            line_plotter,
         }
     }
 
@@ -102,6 +120,13 @@ impl Elevator {
         req_force         
     }
 
+    fn plot(&mut self) {
+        if let Some(line_plotter) = &mut self.line_plotter {
+            line_plotter.add_point(self.current_height);
+            line_plotter.update().unwrap();
+        }
+    }
+
     pub fn load(&mut self, weight: f32) {
         self.current_load += weight;
     }
@@ -119,40 +144,120 @@ impl Elevator {
     }
 
     pub fn is_idle(&self) -> bool {
-        self.is_idle
+        if !self.height_pid.has_reached_target(self.current_height) {
+            return false;
+        }
+        if (self.motor.get_current_speed() - 0.).abs() > 0.1 {
+            return false;
+        }
+        true
     }
 
     pub fn set_target(&mut self, floor_idx: usize) {
         self.height_pid.set_target(self.floors[floor_idx]);
-        self.is_idle = false;
     }
 
     pub fn get_current_speed(&self) -> f32 {
         self.motor.get_current_speed()
     }
 
-    pub fn update(&mut self, delta_time: f32) {
-        // Delta time ve geçmiş döngüyle hesaplama yapan işler fonksiyonun başında
-        // yeni hesaplamalar aşağıda
-        
-        // geçen zamana bağlı yüksekliği güncelle
-        self.current_height += self.motor.get_current_speed() * delta_time;
-
-        // geçen zamana bağlı motor değerlerini güncelle (harcanılan enerji gibi)
-        self.motor.update(delta_time);
-
-        // yeni hesaplamalar
-        // calculate target speed
-        let target_speed: f32 = self.calculate_target_speed(delta_time);
+    fn check_force_req(&self, delta_time: f32) {
+        let target_speed = self.motor.get_target_speed();
 
         // get required force to reach the target speed
-        // let target_accel = (target_speed - self.current_accel) / delta_time;
-        // let required_force = self.calculate_motor_force(target_accel)
+        let target_accel = (target_speed - self.current_accel) / delta_time;
+        let required_force = self.calculate_motor_force(target_accel);
         // do stuff with required force idk
+        if required_force > self.motor.max_force {
+            panic!("Force limit exceeded");
+        }
+    }
 
-        // motora yeni hedefi ver
+    pub fn update(&mut self, delta_time: f32) {
+        // self.check_force_req(delta_time);
+
+        self.current_height += self.motor.get_current_speed() * delta_time;
+        self.motor.update_energy_used(delta_time);
+
+        let target_speed: f32 = self.calculate_target_speed(delta_time);
+        self.plot();
         self.motor.set_target_speed(target_speed);
-        self.is_idle = self.height_pid.has_reached_target(self.current_height);
+        self.motor.update(delta_time);
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    // Import the outer module's functions
+    use super::*;
+    use std::time::Instant;
+
+    #[test]
+    fn create() {
+        let mut _elevator = Elevator::from_file(
+            vec![0., 3., 6., 9., 12.],
+            9.81, 
+            "param/elevator_test_parameters.yaml"
+        ).unwrap();
+    }
+
+    #[test]
+    fn for_tuning() {
+        let mut elevator = Elevator::from_file(
+            vec![0., 3., 6., 9., 12.],
+            9.81, 
+            "param/elevator_test_parameters.yaml"
+        ).unwrap();
+
+        let target_idx = 3;
+        let tolerance = 0.1;
+        elevator.set_target(target_idx);
+
+        let start = Instant::now();
+        loop {
+            let delta_time = start.elapsed().as_secs_f32();
+            elevator.update(delta_time);
+
+            // time limit
+            let elapsed = start.elapsed().as_secs_f32();
+            if elapsed >= 10. {
+                break;
+            }
+        }
+
+        let result = (elevator.current_height - elevator.floors[target_idx]).abs() < tolerance;
+        println!("Current height: {}", elevator.current_height);
+        assert!(result);
+    }
+
+    #[test]
+    fn goto_floor() {
+        let mut elevator = Elevator::from_file(
+            vec![0., 3., 6., 9., 12.],
+            9.81, 
+            "param/elevator_test_parameters.yaml"
+        ).unwrap();
+        let target_idx = 3;
+
+        elevator.set_target(target_idx);
+
+        let start = Instant::now();
+        loop {
+            let delta_time = start.elapsed().as_secs_f32();
+            elevator.update(delta_time);
+            if elevator.is_idle() {
+                break;
+            }
+
+            // time limit
+            let elapsed = start.elapsed().as_secs_f32();
+            if elapsed >= 6. {
+                panic!("Timeout");
+            }
+        }
+        let result = (elevator.current_height - elevator.floors[target_idx]).abs() < 3.;
+        println!("Current height: {}", elevator.current_height);
+        assert!(result);
     }
 
 
