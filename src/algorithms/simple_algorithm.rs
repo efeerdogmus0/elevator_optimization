@@ -33,7 +33,7 @@ impl ElevatorControllerAlgorithm for SimpleElevatorController {
         &mut self,
         _delta_time: f32,
         elevators: &mut Vec<Elevator>,
-        calls: Vec<Option<Direction>>,
+        calls: Vec<Direction>,
     ) {
         // Ensure we have exactly two elevators; otherwise, panic
         if elevators.len() != 2 {
@@ -77,16 +77,19 @@ impl ElevatorControllerAlgorithm for SimpleElevatorController {
 
         // Process calls to direct elevators to requested floors
         for (floor, call) in calls.iter().enumerate() {
-            if let Some(direction) = call {
-                match direction {
-                    Direction::Up => up_elevator.set_target(floor),
-                    Direction::Down => down_elevator.set_target(floor),
+            match call {
+                Direction::Up => up_elevator.set_target(floor),
+                Direction::Down => down_elevator.set_target(floor),
+                Direction::Both => {
+                    up_elevator.set_target(floor);
+                    down_elevator.set_target(floor);
                 }
-                println!(
-                    "Call received on floor {} to move {:?}. Elevator targets updated accordingly.",
-                    floor, direction
-                );
+                Direction::None => {}
             }
+            println!(
+                "Call received on floor {} to move {:?}. Elevator targets updated accordingly.",
+                floor, call
+            );
         }
 
         println!(

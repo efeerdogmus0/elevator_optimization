@@ -1,8 +1,12 @@
 [package]
-name = "elevator_optimization"
+name = "elevator"
 version = "0.1.0"
 edition = "2021"
 license = "GPL-3.0-or-later"
+
+# Kütüphane olarak kullanılacak şekilde yapılandırma
+[lib]
+path = "src/lib.rs"
 
 [dependencies]
 rand = "0.8"
@@ -11,6 +15,7 @@ serde_yaml = "0.9"
 serde_json = "1.0"
 chrono = "0.4"
 csv = "1.1"
-# eframe = "0.19" # Or latest version
-# egui = "0.19"   # Or latest version
+# eframe = "0.19" # Uncomment and update if needed
+# egui = "0.19"   # Uncomment and update if needed
 plotters = "0.3"
+pyo3 = { version = "0.15", features = ["extension-module"] }

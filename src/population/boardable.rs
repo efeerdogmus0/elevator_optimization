@@ -2,7 +2,7 @@
 
 use crate::machine::Elevator;
 
-pub trait Boardable {
+pub trait Boardable: Send + Sync {
     fn get_area(&self) -> f32; // Area occupied by the entity
     fn get_weight(&self) -> f32; // Weight of the entity
     fn calculate_boarding_time(&self, elevator: &Elevator) -> f32; // Time to board the elevator

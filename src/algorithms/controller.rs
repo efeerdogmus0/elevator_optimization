@@ -3,7 +3,7 @@
 
 use crate::machine::{ Elevator, Direction };
 
-pub trait ElevatorControllerAlgorithm {
+pub trait ElevatorControllerAlgorithm: Send + Sync{
     /// Updates the state of the elevator system.
     /// 
     /// This function will be called each cycle to manage elevator requests, 
@@ -15,6 +15,6 @@ pub trait ElevatorControllerAlgorithm {
         &mut self,
         delta_time: f32,
         elevators: &mut Vec<Elevator>,
-        calls: Vec<Option<Direction>>,
+        calls: Vec<Direction>,
     );
 }

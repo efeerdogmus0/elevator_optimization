@@ -1,23 +1,20 @@
 use plotters::prelude::*;
 use std::error::Error;
+use pyo3::prelude::*;
 
 
+#[pyclass]
 pub struct LinePlotter {
-    root: DrawingArea<BitMapBackend<'static>, plotters::coord::Shift>,
+    output_file: String,
     points: Vec<(f32, f32)>,
     elapsed: f32,
 } 
 
 impl LinePlotter {
     pub fn new(output_file: String) -> Result<Self, Box<dyn Error>> {
-        let output_file_static = Box::leak(Box::new(output_file.clone())); // Leak the string to get a 'static reference
-        let backend = BitMapBackend::new(output_file_static, (1920, 1080));
-        let root = backend.into_drawing_area();
-        root.fill(&WHITE)?;
-
         Ok(
             Self {
-                root,
+                output_file,
                 points: Vec::new(),
                 elapsed: 0.0,
             }
@@ -35,8 +32,10 @@ impl LinePlotter {
     }
 
     pub fn update(&self) -> Result<(), Box<dyn Error>> {
-        // Set up the output file
-        self.root.fill(&WHITE)?;
+        // let output_file_static = Box::leak(Box::new(output_file.clone())); // Leak the string to get a 'static reference
+        let backend = BitMapBackend::new(&self.output_file, (1920, 1080));
+        let root = backend.into_drawing_area();
+        root.fill(&WHITE)?;
 
         // Define x and y axis ranges based on data
         let x_min = self.points.iter().map(|(x, _)| *x).fold(f32::INFINITY, f32::min);
@@ -44,7 +43,7 @@ impl LinePlotter {
         let y_min = self.points.iter().map(|(_, y)| *y).fold(f32::INFINITY, f32::min);
         let y_max = self.points.iter().map(|(_, y)| *y).fold(f32::NEG_INFINITY, f32::max);
 
-        let mut chart = ChartBuilder::on(&self.root)
+        let mut chart = ChartBuilder::on(&root)
             .caption("Line Plotter", ("sans-serif", 40))
             .margin(10)
             .x_label_area_size(30)

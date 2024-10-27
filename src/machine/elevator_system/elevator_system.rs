@@ -6,15 +6,20 @@ use super::elevator_system_parameters::ElevatorSystemParameters;
 use crate::population::{ Boardable, PopulationGenerator };
 use crate::algorithms::ElevatorControllerAlgorithm;
 
+use pyo3::prelude::*;
 use std::error::Error;
 
-#[derive(Debug)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum Direction {
     Up,
     Down,
+    Both,
+    None,
 }
 
 
+
+#[pyclass]
 pub struct ElevatorSystem {
     floor_heights: Vec<f32>,
     controller: Box<dyn ElevatorControllerAlgorithm>,
@@ -25,6 +30,42 @@ pub struct ElevatorSystem {
     time_of_day: u32,
 }
 
+
+#[pymethods]
+impl ElevatorSystem {
+    pub fn get_used_energy(&self) -> f32 {
+        let mut total = 0.0;
+        for elevator in &self.elevators {
+            total += elevator.get_used_energy();
+        }
+        total
+    }
+
+    pub fn update(&mut self) {
+        let delta_time: f32 = self.get_delta_time();
+
+        // give birth to new homo sapiens
+        self.generate_population(delta_time);
+        self.update_queue_wait_time(delta_time);
+
+        let called_buttons = self.get_call_buttons();
+        self.controller.update(
+            delta_time,
+            &mut self.elevators,
+            called_buttons,
+        );
+
+        for idx in 0..self.elevators.len() {
+            self.elevators[idx].unload();
+            self.load_elevator(idx);
+
+            self.elevators[idx].update(delta_time);
+
+            println!("### Elevator {}", idx);
+            self.elevators[idx].debug_print();
+        }
+    }
+}
 
 impl ElevatorSystem {
     pub fn from_file(
@@ -65,14 +106,6 @@ impl ElevatorSystem {
             all_wait_times: Vec::new(),
             time_of_day: parameters.time_of_day,
         }
-    }
-
-    pub fn get_used_energy(&self) -> f32 {
-        let mut total = 0.0;
-        for elevator in &self.elevators {
-            total += elevator.get_used_energy();
-        }
-        total
     }
 
     fn get_delta_time(&mut self) -> f32 {
@@ -120,21 +153,36 @@ impl ElevatorSystem {
         }
     }
 
-    pub fn get_call_buttons(&self) -> Vec<Option<Direction>> {
-        let mut call_buttons = Vec::new();
+    pub fn get_call_buttons(&self) -> Vec<Direction> {
+        let mut call_buttons = vec![Direction::None; self.queue.len()];
+
         for (floor_idx, floor_queue) in self.queue.iter().enumerate() {
             if floor_queue.is_empty() {
-                call_buttons.push(None);
+                call_buttons[floor_idx] = Direction::None;
+                continue;
             } 
+            
             for entity in floor_queue {
+                // tuş yukarıyaysa
                 if entity.get_destination() > floor_idx {
-                    call_buttons.push(Some(Direction::Up));
+                    if call_buttons[floor_idx] == Direction::Down {
+                        call_buttons[floor_idx] = Direction::Both;
+                    } else {
+                        call_buttons[floor_idx] = Direction::Up;
+                    }
                     break;
                 } 
-                else if entity.get_destination() < floor_idx {
-                    call_buttons.push(Some(Direction::Down));
+
+                // tuş aşağıyaysa
+                if entity.get_destination() < floor_idx {
+                    if call_buttons[floor_idx] == Direction::Up {
+                        call_buttons[floor_idx] = Direction::Both;
+                    } else {
+                        call_buttons[floor_idx] = Direction::Down;
+                    }
                     break;
                 }
+
                 else {
                     panic!("
                         1. The Industrial Revolution and its consequences have been 
@@ -174,31 +222,6 @@ impl ElevatorSystem {
             for entity in floor_queue {
                 entity.increase_wait_time(delta_time);
             }
-        }
-    }
-    
-    pub fn update(&mut self) {
-        let delta_time = self.get_delta_time();
-
-        // give birth to new homo sapiens
-        self.generate_population(delta_time);
-        self.update_queue_wait_time(delta_time);
-
-        let called_buttons = self.get_call_buttons();
-        self.controller.update(
-            delta_time,
-            &mut self.elevators,
-            called_buttons,
-        );
-
-        for idx in 0..self.elevators.len() {
-            self.elevators[idx].unload();
-            self.load_elevator(idx);
-
-            self.elevators[idx].update(delta_time);
-
-            println!("### Elevator {}", idx);
-            self.elevators[idx].debug_print();
         }
     }
 }

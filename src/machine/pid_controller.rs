@@ -82,7 +82,7 @@ impl PIDController {
             let plot_rv = LinePlotter::new(parameters.plot_path);
             match plot_rv {
                 Ok(line_plotter) => {
-                    println!("Plotter created");
+                    // println!("Plotter created");
                     Some(line_plotter)
                 },
                 Err(e) => {
