@@ -23,6 +23,7 @@ pub struct PopulationGenerator {
     avg_female_weight: WeightDistribution,
     avg_male_weight: WeightDistribution,
     commute_by_age: CommuteByAge, // Field for commute probabilities by age
+    accumulated_entity_probability: f32,
 }
 
 impl PopulationGenerator {
@@ -44,6 +45,7 @@ impl PopulationGenerator {
             avg_female_weight,
             avg_male_weight,
             commute_by_age,
+            accumulated_entity_probability: 0.
         }
     }
 
@@ -64,13 +66,15 @@ impl PopulationGenerator {
     }
 
     pub fn generate(
-        &self, 
+        &mut self, 
         time: u32,
         delta_time: f32,
-        current_floor: usize,
-    ) -> Vec<Box<dyn Boardable>> {
+        hour_length: f32,
+    ) -> Vec<(usize, Box<dyn Boardable>)> {
+        // this returns a list of (floor and the entity)
+
         let mut rng = rand::thread_rng();
-        let mut generated_entities: Vec<Box<dyn Boardable>> = Vec::new();
+        let mut generated_entities: Vec<(usize, Box<dyn Boardable>)> = Vec::new();
 
         // Determine the average number of passengers based on time
         let avg_passengers = self.avg_passenger_by_time
@@ -79,10 +83,18 @@ impl PopulationGenerator {
             .map(|&(_, count)| count)
             .unwrap_or(0.0);
 
-        let num_passengers = (avg_passengers * delta_time).round() as u32;
+        self.accumulated_entity_probability += avg_passengers * delta_time / hour_length;
+
+        // eğer oluşan insan sayısı 1in altındaysa hiçbir şey yapma
+        if self.accumulated_entity_probability < 1. {
+            return generated_entities;
+        }
 
         // Generate each passenger
-        for _ in 0..num_passengers {
+        for _ in 0..self.accumulated_entity_probability as u32 {
+            // Randomly choose a floor for the passenger
+            let current_floor = rng.gen_range(0..self.floor_count);
+
             // Randomly choose between Human and HumanGroup
             let entity_type = if rng.gen::<f32>() < 0.7 {
                 EntityType::Human
@@ -97,7 +109,8 @@ impl PopulationGenerator {
             };
 
             if let Some(e) = entity {
-                generated_entities.push(e);
+                generated_entities.push((current_floor, e));
+                self.accumulated_entity_probability -= 1.;
             }
         }
 

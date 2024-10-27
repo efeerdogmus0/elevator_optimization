@@ -78,18 +78,30 @@ impl ElevatorControllerAlgorithm for SimpleElevatorController {
         // Process calls to direct elevators to requested floors
         for (floor, call) in calls.iter().enumerate() {
             match call {
-                Direction::Up => up_elevator.set_target(floor),
-                Direction::Down => down_elevator.set_target(floor),
+                Direction::Up => {
+                    println!(
+                        "Call received on floor {} to move {:?}. Elevator targets updated accordingly.",
+                        floor, call
+                    );
+                    up_elevator.set_target(floor)
+                },
+                Direction::Down => {
+                    println!(
+                        "Call received on floor {} to move {:?}. Elevator targets updated accordingly.",
+                        floor, call
+                    );
+                    down_elevator.set_target(floor)
+                },
                 Direction::Both => {
+                    println!(
+                        "Call received on floor {} to move {:?}. Elevator targets updated accordingly.",
+                        floor, call
+                    );
                     up_elevator.set_target(floor);
                     down_elevator.set_target(floor);
                 }
                 Direction::None => {}
             }
-            println!(
-                "Call received on floor {} to move {:?}. Elevator targets updated accordingly.",
-                floor, call
-            );
         }
 
         println!(

@@ -7,6 +7,7 @@ use crate::population::{ Boardable, PopulationGenerator };
 use crate::algorithms::ElevatorControllerAlgorithm;
 
 use pyo3::prelude::*;
+use rand::seq::index;
 use std::error::Error;
 
 #[derive(Debug, Clone, PartialEq)]
@@ -28,6 +29,8 @@ pub struct ElevatorSystem {
     elevators: Vec<Elevator>,
     all_wait_times: Vec<f32>,
     time_of_day: u32,
+    time_step: f32,
+    hour_length: f32,
 }
 
 
@@ -109,6 +112,8 @@ impl ElevatorSystem {
             elevators,
             all_wait_times: Vec::new(),
             time_of_day: parameters.time_of_day,
+            time_step: parameters.time_step,
+            hour_length: parameters.hour_length,
         }
     }
 
@@ -119,7 +124,7 @@ impl ElevatorSystem {
         // self.last_update = now;
         // delta_time *= self.time_multiplier;
         
-        0.1
+        self.time_step
     }
 
     fn load_elevator(&mut self, elevator_idx: usize) {
@@ -130,7 +135,14 @@ impl ElevatorSystem {
 
         match elevator.get_current_floor() {
             Some(floor) => {
-                println!("Elevator {} is at floor {}, loading", elevator_idx, floor);
+                if self.queue[floor].is_empty() {
+                    return;
+                }
+                println!("Elevator {} is at floor {} and loading, queue len: {}", 
+                    elevator_idx, 
+                    floor,
+                    self.queue[floor].len(),
+                );
 
                 let mut idx = 0;
                 while idx < self.queue[floor].len() {
@@ -147,13 +159,14 @@ impl ElevatorSystem {
     }
 
     fn generate_population(&mut self, delta_time: f32) {
-        for floor in 0..self.floor_heights.len() {
-            let entities = self.pop_gen.generate(self.time_of_day, delta_time, floor);
+        let generated = self.pop_gen.generate(
+            self.time_of_day, 
+            delta_time, 
+            self.hour_length,
+        );
 
-            self.queue[floor].extend(entities);
-            // for entity in entities {
-            //     self.queue[floor].push(entity);
-            // }
+        for (floor, entity) in generated {
+            self.queue[floor].push(entity);
         }
     }
 

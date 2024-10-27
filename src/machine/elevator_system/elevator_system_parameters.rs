@@ -11,6 +11,8 @@ pub struct ElevatorSystemParameters {
     pub gravity: f32,
     pub elevators: Vec<String>,
     pub time_of_day: u32,
+    pub time_step: f32,
+    pub hour_length: f32,
 }
 
 

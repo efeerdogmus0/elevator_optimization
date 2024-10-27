@@ -1,0 +1,24 @@
+gravity: 9.81
+time_of_day: 13
+
+
+# Bu değişkenlerin isminin çok doğru olmadığının farkındayım
+
+# bilgisayarlar arasında fark olmasın ve pid loopları geri 
+# kalmasın diye her döngüde kaç saniye geçtiğini time_step belirliyor
+time_step: 0.1
+
+# kaç tane time_step geçtiğinde bir saat geçmiş gibi kabul 
+# edeceğimizi de bu belirliyor
+hour_length: 60
+
+floors:
+    - 0
+    - 5
+    - 10
+    - 15
+    - 20
+
+elevators:
+    - "param/elevator_parameters.yaml"
+    - "param/elevator_parameters.yaml"
