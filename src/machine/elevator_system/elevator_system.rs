@@ -22,6 +22,7 @@ pub struct ElevatorSystem {
     pop_gen: PopulationGenerator,
     elevators: Vec<Elevator>,
     all_wait_times: Vec<f32>,
+    time_of_day: u32,
 }
 
 
@@ -49,13 +50,20 @@ impl ElevatorSystem {
             );
         }
         let floor_count = parameters.floors.len();
+
+        let mut queue = Vec::with_capacity(floor_count);
+        for _ in 0..floor_count {
+            queue.push(Vec::new());
+        }
+
         Self {
             floor_heights: parameters.floors,
             controller,
-            queue: Vec::with_capacity(floor_count),
+            queue,
             pop_gen: PopulationGenerator::new(floor_count),
             elevators,
             all_wait_times: Vec::new(),
+            time_of_day: parameters.time_of_day,
         }
     }
 
@@ -100,8 +108,12 @@ impl ElevatorSystem {
 
     fn generate_population(&mut self, delta_time: f32) {
         for floor in 0..self.floor_heights.len() {
-            let entities = self.pop_gen.generate(0, delta_time, floor);
+            let entities = self.pop_gen.generate(self.time_of_day, delta_time, floor);
+
             self.queue[floor].extend(entities);
+            // for entity in entities {
+            //     self.queue[floor].push(entity);
+            // }
         }
     }
 

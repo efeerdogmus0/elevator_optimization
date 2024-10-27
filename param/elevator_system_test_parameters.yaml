@@ -1,4 +1,5 @@
 gravity: 9.81
+time_of_day: 13
 
 floors:
     - 0
