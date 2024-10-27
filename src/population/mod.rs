@@ -9,5 +9,5 @@ mod weight_distribution;
 mod commute_by_age;
 
 pub use population_generator::PopulationGenerator;
-pub use human::{ Human, HumanGroup, Gender};
+// pub use human::{ Human, HumanGroup, Gender};
 pub use boardable::Boardable;

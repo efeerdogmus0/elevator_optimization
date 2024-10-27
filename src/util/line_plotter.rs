@@ -1,4 +1,3 @@
-use std::time::Instant;
 use plotters::prelude::*;
 use std::error::Error;
 
@@ -7,7 +6,6 @@ pub struct LinePlotter {
     root: DrawingArea<BitMapBackend<'static>, plotters::coord::Shift>,
     points: Vec<(f32, f32)>,
     elapsed: f32,
-    output_file: String,
 } 
 
 impl LinePlotter {
@@ -22,7 +20,6 @@ impl LinePlotter {
                 root,
                 points: Vec::new(),
                 elapsed: 0.0,
-                output_file,
             }
         )
     }

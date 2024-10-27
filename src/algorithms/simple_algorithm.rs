@@ -31,7 +31,7 @@ impl SimpleElevatorController {
 impl ElevatorControllerAlgorithm for SimpleElevatorController {
     fn update(
         &mut self,
-        delta_time: f32,
+        _delta_time: f32,
         elevators: &mut Vec<Elevator>,
         calls: Vec<Option<Direction>>,
     ) {

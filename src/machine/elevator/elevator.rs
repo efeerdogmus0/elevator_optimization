@@ -12,11 +12,8 @@ use std::error::Error;
 pub struct Elevator {
     floors: Vec<f32>, // floor heights, taken from elevator controller
     current_height: f32,
-    current_accel: f32,
     height_pid: PIDController,
     // weigth and forces 
-    max_speed: f32,
-    max_accel: f32,
     elevator_mass: f32,
     elevator_counter_mass: f32,
     max_load: f32,
@@ -76,10 +73,7 @@ impl Elevator {
         Self {
             floors,
             current_height: 0.0,
-            current_accel: 0.0,
             height_pid,
-            max_speed: parameters.max_speed,
-            max_accel: parameters.max_accel,
             elevator_mass: parameters.elevator_mass,
             elevator_counter_mass: parameters.elevator_counter_mass,
             max_load: parameters.max_load,
@@ -94,20 +88,12 @@ impl Elevator {
         }
     }
 
-    fn get_speed(&self) -> f32 {
-        self.motor.get_current_speed()
-    }
-
     pub fn get_used_energy(&self) -> f32{
         self.motor.get_total_energy_used()
     }
 
     pub fn get_total_mass(&self) -> f32 {
         self.elevator_mass + self.current_load + self.elevator_counter_mass
-    }
-
-    pub fn get_entity_count(&self) -> usize {
-        self.entities.len()
     }
 
     fn calculate_target_speed(&mut self, delta_time: f32) -> f32 {
@@ -175,10 +161,6 @@ impl Elevator {
         }
     }
 
-    pub fn distance_to_floor(&self, floor_idx: usize) -> f32 {
-        self.floors[floor_idx] - self.current_height
-    }
-
     pub fn can_board(&self) -> bool {
         if !self.height_pid.has_reached_target(self.current_height) {
             return false;
@@ -219,7 +201,7 @@ impl Elevator {
         let target_speed = self.motor.get_target_speed();
 
         // get required force to reach the target speed
-        let target_accel = (target_speed - self.current_accel) / delta_time;
+        let target_accel = (target_speed - self.get_current_speed()) / delta_time;
         let required_force = self.calculate_motor_force(target_accel);
         // do stuff with required force idk
         if required_force > self.motor.max_force {
@@ -228,7 +210,7 @@ impl Elevator {
     }
 
     pub fn update(&mut self, delta_time: f32) {
-        // self.check_force_req(delta_time);
+        self.check_force_req(delta_time);
 
         self.current_height += self.motor.get_current_speed() * delta_time;
         self.motor.update_energy_used(delta_time);
@@ -237,79 +219,5 @@ impl Elevator {
         self.plot(delta_time);
         self.motor.set_target_speed(target_speed);
         self.motor.update(delta_time);
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    // Import the outer module's functions
-    use super::*;
-
-    #[test]
-    fn create() {
-        let mut _elevator = Elevator::from_file(
-            vec![0., 3., 6., 9., 12.],
-            9.81, 
-            "param/elevator_test_parameters.yaml"
-        ).unwrap();
-    }
-
-    #[test]
-    fn for_tuning() {
-        let mut elevator = Elevator::from_file(
-            vec![0., 3., 6., 9., 12.],
-            9.81, 
-            "param/elevator_test_parameters.yaml"
-        ).unwrap();
-
-        let target_idx = 3;
-        let tolerance = 0.1;
-        elevator.set_target(target_idx);
-
-        let mut elapsed = 0.;
-        let delta_time = 0.1;
-        loop {
-            elevator.update(delta_time);
-
-            elapsed += delta_time;
-            // time limit
-            if elapsed >= 3. {
-                break;
-            }
-        }
-
-        let result = (elevator.current_height - elevator.floors[target_idx]).abs() < tolerance;
-        println!("Current height: {}", elevator.current_height);
-        assert!(result);
-    }
-
-    #[test]
-    fn goto_floor() {
-        let mut elevator = Elevator::from_file(
-            vec![0., 3., 6., 9., 12.],
-            9.81, 
-            "param/elevator_test_parameters.yaml"
-        ).unwrap();
-        let target_idx = 3;
-
-        elevator.set_target(target_idx);
-
-        let mut elapsed = 0.;
-        let delta_time = 0.1;
-        loop {
-            elevator.update(delta_time);
-            if elevator.can_board() {
-                break;
-            }
-
-            // time limit
-            elapsed += delta_time;
-            if elapsed >= 6. {
-                panic!("Timeout");
-            }
-        }
-        let result = (elevator.current_height - elevator.floors[target_idx]).abs() < 3.;
-        println!("Current height: {}", elevator.current_height);
-        assert!(result);
     }
 }

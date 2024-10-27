@@ -3,6 +3,7 @@
 
 mod elevator;
 mod elevator_parameters;
+mod elevator_tests;
 
 pub use elevator::Elevator;
 pub use elevator_parameters::ElevatorParameters;

@@ -1,5 +1,4 @@
 gravity: 9.81
-time_multiplier: 1
 
 floors:
     - 0

@@ -20,12 +20,10 @@ mod machine;
 mod algorithms;
 mod population;
 
-use util::LinePlotter;
 use machine::ElevatorSystem;
 use algorithms::SimpleElevatorController;
 
-use std::thread;
-use std::time::{Duration, Instant};
+use std::time::Instant;
 
 fn main() {
     println!("    
@@ -37,8 +35,13 @@ fn main() {
     let controller = Box::new(SimpleElevatorController::new());
     let mut system = ElevatorSystem::from_file(controller, "elevator_system_parameters.yaml").unwrap();
 
+    let start = Instant::now();
     loop {
         system.update();
+        if start.elapsed().as_secs() > 60 {
+            break;
+        }
     }
-
+    let energy = system.get_used_energy();
+    println!("Total energy used: {:.2} J", energy);
 }

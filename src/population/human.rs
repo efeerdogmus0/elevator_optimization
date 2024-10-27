@@ -32,7 +32,7 @@ impl Boardable for Human {
         2.0 
     }
 
-    fn get_waiting_time(&self) -> f32 {
+    fn get_wait_time(&self) -> f32 {
         self.waiting_time
     }
 
@@ -98,7 +98,7 @@ impl Boardable for HumanGroup {
         self.members.len() as f32 * 2.0 
     }
 
-    fn get_waiting_time(&self) -> f32 {
+    fn get_wait_time(&self) -> f32 {
         // Calculate average or total waiting time for the group if needed
         self.members.iter().map(|h| h.waiting_time).sum::<f32>() / self.members.len() as f32
     }

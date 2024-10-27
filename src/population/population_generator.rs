@@ -17,27 +17,6 @@ pub enum EntityType {
     HumanGroup,
 }
 
-impl EntityType {
-    fn probability(&self) -> f32 {
-        let human_prob = 0.7;
-        let human_group_prob = 0.3;
-        let total_probability: f32 = human_prob + human_group_prob;
-        assert!((total_probability - 1.0).abs() < f32::EPSILON, "Probabilities do not add up to 1.0");
-
-        match self {
-            EntityType::Human => human_prob,
-            EntityType::HumanGroup => human_group_prob,
-        }
-    }
-
-    fn all_types() -> Vec<(EntityType, f32)> {
-        vec![
-            (EntityType::Human, EntityType::Human.probability()),
-            (EntityType::HumanGroup, EntityType::HumanGroup.probability()),
-        ]
-    }
-}
-
 pub struct PopulationGenerator {
     avg_passenger_by_time: Vec<(u32, f32)>, // (time, avg passenger count)
     floor_count: usize,

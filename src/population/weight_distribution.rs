@@ -5,9 +5,6 @@ use std::fs::File;
 
 #[derive(Debug)]
 pub struct WeightDistribution {
-    age_group: String,
-    mean: f32,
-    std_error: f32,
     percentiles: [f32; 10], // Stores percentiles (5th, 10th, 15th, 25th, 50th, 75th, 95th)
 }
 
@@ -35,9 +32,6 @@ impl WeightDistribution {
 
         if let Some(result) = rdr.records().next() {
             let record = result?;
-            let age_group = record[0].to_string();
-            let mean: f32 = record[1].parse()?;
-            let std_error: f32 = record[2].parse()?;
             
             // Parse percentiles from CSV record
             let percentiles = [
@@ -54,9 +48,6 @@ impl WeightDistribution {
             ];
 
             return Ok(WeightDistribution {
-                age_group,
-                mean,
-                std_error,
                 percentiles,
             });
         }
