@@ -29,10 +29,14 @@ impl PopulationGenerator {
     pub fn new(
         floor_count: usize,
     ) -> Self {
-        let avg_passenger_by_time = Self::parse_avg_passenger_by_time("data/avg_passenger_by_time.csv").unwrap();
-        let commute_by_age = CommuteByAge::new_from_file("data/commuting_activity_by_age.csv").unwrap();
-        let avg_female_weight = WeightDistribution::read_weight_distribution("data/avg_female_weight.csv").unwrap();
-        let avg_male_weight = WeightDistribution::read_weight_distribution("data/avg_male_weight.csv").unwrap();
+        let avg_passenger_by_time = Self::parse_avg_passenger_by_time("data/avg_passengers_by_time.csv")
+            .expect("average passenger by time file not found");
+        let commute_by_age = CommuteByAge::new_from_file("data/commuting_activity_by_age.csv")
+            .expect("commuting activity by age file not found");
+        let avg_female_weight = WeightDistribution::read_weight_distribution("data/avg_female_weight.csv")
+            .expect("average female weight distribution file not found");
+        let avg_male_weight = WeightDistribution::read_weight_distribution("data/avg_male_weight.csv")
+            .expect("average male weight distribution file not found");
 
         Self {
             avg_passenger_by_time,
@@ -115,7 +119,7 @@ impl PopulationGenerator {
 
     fn generate_age() -> u8 {
         let mut rng = rand::thread_rng();
-        rng.gen_range(18..80)
+        rng.gen_range(21..80)
     }
 
     fn will_use_elevator(&self, age: u8, time: u32) -> bool {
@@ -129,9 +133,9 @@ impl PopulationGenerator {
 
         // Assign weight based on gender
         let weight = match gender {
-            Gender::Male => self.avg_male_weight.randomly_generate(),
-            Gender::Female => self.avg_female_weight.randomly_generate(),
-        };
+            Gender::Male => self.avg_male_weight.randomly_generate(age as u32),
+            Gender::Female => self.avg_female_weight.randomly_generate(age as u32),
+        }.unwrap();
 
         // Determine if this person uses the elevator based on age
         let uses_elevator = self.will_use_elevator(age, time);
@@ -160,9 +164,9 @@ impl PopulationGenerator {
             let age = Self::generate_age();
 
             let weight = match gender {
-                Gender::Male => self.avg_male_weight.randomly_generate(),
-                Gender::Female => self.avg_female_weight.randomly_generate(),
-            };
+                Gender::Male => self.avg_male_weight.randomly_generate(age as u32),
+                Gender::Female => self.avg_female_weight.randomly_generate(age as u32),
+            }.unwrap();
 
             // Check if each group member wants to use the elevator
             if self.will_use_elevator(age, time) {

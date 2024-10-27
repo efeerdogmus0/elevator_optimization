@@ -33,7 +33,8 @@ fn main() {
         under certain conditions;
     ");
     let controller = Box::new(SimpleElevatorController::new());
-    let mut system = ElevatorSystem::from_file(controller, "elevator_system_parameters.yaml").unwrap();
+    let mut system = ElevatorSystem::from_file(controller, "param/elevator_system_test_parameters.yaml")
+        .expect("Failed to create elevator system");
 
     let start = Instant::now();
     loop {
