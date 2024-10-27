@@ -187,6 +187,27 @@ impl Elevator {
         self.target_idx = floor_idx;
     }
 
+    pub fn get_target_floor(&self) -> usize {
+        self.target_idx
+    }
+
+    pub fn is_moving_towards(&self, idx: usize) -> bool {
+        let call_h = self.floors[idx];
+        let target_h = self.floors[self.target_idx];
+        let current_h = self.get_current_height();
+
+        // yukarı gidiyorsak 
+        if current_h < call_h && current_h < target_h {
+            return true;
+        }
+        // aşağı gidiyosak
+        if current_h > call_h && current_h > target_h {
+            return true;
+        }
+
+        false
+    }
+
     pub fn get_current_speed(&self) -> f32 {
         self.motor.get_current_speed()
     }
