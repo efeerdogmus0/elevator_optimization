@@ -1,3 +1,5 @@
+use plotters::series::AreaSeries;
+
 use super::boardable::Boardable;
 use crate::machine::Elevator;
 
@@ -47,11 +49,10 @@ impl Human {
     pub fn new(
         age: u8, 
         gender: Gender,
+        weight: f32,
+        area: f32,
         destination_floor: usize,
     ) -> Self {
-        let weight = Self::calc_weight(age, &gender);
-        let area = Self::calc_area(weight);
-
         Self {
             weight,
             age,
@@ -60,21 +61,6 @@ impl Human {
             destination_floor,
             waiting_time: 0.,
         }
-    }
-
-    fn calc_weight(age: u8, gender: &Gender) -> f32 {
-        match &gender {
-            Gender::Female => {
-                age as f32
-            }
-            Gender::Male => {
-                age as f32
-            }
-        }
-    }
-
-    fn calc_area(weight: f32) -> f32 {
-        weight / 10.0
     }
 
     pub fn increment_waiting_time(&mut self, increment: f32) {

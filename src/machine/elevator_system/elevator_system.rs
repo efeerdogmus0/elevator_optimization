@@ -45,7 +45,7 @@ impl ElevatorSystem {
         Self {
             floor_heights: parameters.floors,
             queue: Vec::with_capacity(floor_count),
-            pop_gen: PopulationGenerator::new(vec![(0,0)], floor_count),
+            pop_gen: PopulationGenerator::new(floor_count),
             elevators,
             last_update: Instant::now(),
             time_multiplier: parameters.time_multiplier,
