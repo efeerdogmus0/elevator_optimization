@@ -61,6 +61,7 @@ impl PopulationGenerator {
     pub fn generate(
         &self, 
         time: u32,
+        delta_time: f32,
         current_floor: usize,
     ) -> Vec<Box<dyn Boardable>> {
 
@@ -203,7 +204,7 @@ mod tests {
     fn test_population_generation() {
         // Test population generation based on time and probability
         let pop_gen = PopulationGenerator::new(vec![(1, 10)], 10);
-        let entities = pop_gen.generate(1, 0);
+        let entities = pop_gen.generate(1, 0, 0);
 
         // Ensure correct number of entities generated
         assert_eq!(entities.len(), 10);

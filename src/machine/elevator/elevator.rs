@@ -10,20 +10,20 @@ use crate::util::LinePlotter;
 use std::error::Error;
 
 pub struct Elevator {
-    pub floors: Vec<f32>, // floor heights, taken from elevator controller
-    pub current_height: f32,
-    pub current_accel: f32,
-    pub height_pid: PIDController,
+    floors: Vec<f32>, // floor heights, taken from elevator controller
+    current_height: f32,
+    current_accel: f32,
+    height_pid: PIDController,
     // weigth and forces 
-    pub max_speed: f32,
-    pub max_accel: f32,
-    pub elevator_mass: f32,
-    pub elevator_counter_mass: f32,
-    pub max_load: f32,
-    pub current_load: f32,
-    pub motor: ElevatorMotor,
+    max_speed: f32,
+    max_accel: f32,
+    elevator_mass: f32,
+    elevator_counter_mass: f32,
+    max_load: f32,
+    current_load: f32,
+    motor: ElevatorMotor,
     // simulation-related
-    pub gravity: f32,
+    gravity: f32,
     entities: Vec<Box<dyn Boardable>>,
     target_idx: usize,
     area: f32,
@@ -175,10 +175,6 @@ impl Elevator {
         }
     }
 
-    pub fn direction(&self) -> bool {
-        self.height_pid.target > self.current_height
-    }
-
     pub fn distance_to_floor(&self, floor_idx: usize) -> f32 {
         self.floors[floor_idx] - self.current_height
     }
@@ -191,6 +187,10 @@ impl Elevator {
             return false;
         }
         true
+    }
+
+    pub fn get_current_height(&self) -> f32 {
+        self.current_height
     }
 
     pub fn get_current_floor(&self) -> Option<usize> {
@@ -207,6 +207,12 @@ impl Elevator {
 
     pub fn get_current_speed(&self) -> f32 {
         self.motor.get_current_speed()
+    }
+
+    pub fn get_target_floors(&self) -> Vec<usize> {
+        self.entities.iter()
+            .map(|entity| entity.get_destination())
+            .collect()
     }
 
     fn check_force_req(&self, delta_time: f32) {
