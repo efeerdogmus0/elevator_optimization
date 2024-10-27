@@ -138,11 +138,11 @@ impl Elevator {
 
     pub fn can_fit(&self, entity: &Box<dyn Boardable>) -> bool {
         if self.current_load + entity.get_weight() > self.max_load {
-            println!("Weight limit exceeded");
+            // println!("Weight limit exceeded");
             return false;
         }
         if self.current_area < entity.get_area() {
-            println!("Area limit exceeded");
+            // println!("Area limit exceeded");
             return false;
         }
 
@@ -163,14 +163,25 @@ impl Elevator {
 
     pub fn unload(&mut self) {
         let mut idx = 0;
+        let total_unloaded =
+
         while idx < self.entities.len() {
             let entity = &self.entities[idx];
-            if entity.get_destination() == self.target_idx {
-                self.current_load -= entity.get_weight();
-                self.area += entity.get_area();
-                self.entities.remove(idx);
+
+            let entity_destination = entity.get_destination();
+            let current_floor = self.get_current_floor();
+
+            match current_floor {
+                None => { idx += 1; continue;}
+                Some(current_floor) => {
+                    if entity_destination == current_floor {
+                        self.current_load -= entity.get_weight();
+                        self.area += entity.get_area();
+                        self.entities.remove(idx);
+                    }
+                    else { idx += 1;}
+                },
             }
-            else { idx += 1;}
         }
     }
 
