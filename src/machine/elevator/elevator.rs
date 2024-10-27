@@ -51,7 +51,7 @@ impl Elevator {
         parameters: ElevatorParameters,
     ) -> Self {
         let height_pid = PIDController::new(parameters.pid_parameters);
-        let motor = ElevatorMotor::new(parameters.motor_parameters).unwrap();
+        let mut motor = ElevatorMotor::new(parameters.motor_parameters).unwrap();
 
         // line plotterı yarat
         let line_plotter = if parameters.enable_debug_plotting {
@@ -69,6 +69,16 @@ impl Elevator {
         } else {
             None
         };
+
+        let max_accel = Self::calc_max_accel(
+            gravity, 
+            parameters.elevator_mass, 
+            parameters.elevator_counter_mass, 
+            parameters.max_load,
+            motor.max_force,
+        );
+
+        motor.set_acceleration(max_accel);
 
         Self {
             floors,
@@ -116,7 +126,7 @@ impl Elevator {
 
         // required force by the elevator motor
         let req_force = (e-self.elevator_counter_mass)*self.gravity - m*target_accel;
-        req_force         
+        req_force
     }
 
     fn plot(&mut self, delta_time: f32) {
@@ -128,12 +138,15 @@ impl Elevator {
 
     pub fn can_fit(&self, entity: &Box<dyn Boardable>) -> bool {
         if self.current_load + entity.get_weight() > self.max_load {
+            println!("Weight limit exceeded");
             return false;
         }
-        if self.current_area + entity.get_area() > self.area {
+        if self.current_area < entity.get_area() {
+            println!("Area limit exceeded");
             return false;
         }
-        true
+
+        return true;
     }
 
     pub fn load(&mut self, entity: Box<dyn Boardable>) {
@@ -218,21 +231,25 @@ impl Elevator {
             .collect()
     }
 
-    fn check_force_req(&self, delta_time: f32) {
-        let target_speed = self.motor.get_target_speed();
+    pub fn debug_string(&self) -> String {
+        format!("height {}, target {}, reached? {} entity count: {}",
+            self.get_current_height(),
+            self.floors[self.target_idx],
+            self.can_board(),
+            self.entities.len(),
+        )
+    }
 
-        // get required force to reach the target speed
-        let target_accel = (target_speed - self.get_current_speed()) / delta_time;
-        let required_force = self.calculate_motor_force(target_accel);
-        // do stuff with required force idk
-        if required_force > self.motor.max_force {
-            panic!("Force limit exceeded");
-        }
+    pub fn debug_print(&self) {
+        println!("{}", self.debug_string());
+    }
+
+    fn calc_max_accel(g: f32, e: f32, c: f32, l: f32, motor_force: f32) -> f32 {
+        // max acceleration by the elevator motor
+        (e-c)*g-motor_force/(e+c+l)
     }
 
     pub fn update(&mut self, delta_time: f32) {
-        self.check_force_req(delta_time);
-
         self.current_height += self.motor.get_current_speed() * delta_time;
         self.motor.update_energy_used(delta_time);
 

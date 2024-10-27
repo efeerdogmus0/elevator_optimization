@@ -19,11 +19,15 @@ mod util;
 mod machine;
 mod algorithms;
 mod population;
+mod socket;
+
 
 use machine::ElevatorSystem;
 use algorithms::SimpleElevatorController;
 
 use std::time::Instant;
+use std::time::Duration;
+use std::thread;
 
 fn main() {
     println!("    
@@ -39,9 +43,10 @@ fn main() {
     let start = Instant::now();
     loop {
         system.update();
-        if start.elapsed().as_secs() > 60 {
-            break;
-        }
+        // if start.elapsed().as_secs() > 60 {
+        //     break;
+        // }
+        // thread::sleep(Duration::from_millis(1000));
     }
     let energy = system.get_used_energy();
     println!("Total energy used: {:.2} J", energy);

@@ -43,8 +43,8 @@ motor_parameters:
         enable_target_limits: false
         change_limit: 0.
 
-    gearbox_ratio: 10.
-    output_shaft_radius: 1.
+    gearbox_ratio: 20.
+    output_shaft_radius: 0.5
     sample_path: "data/motor_samples.csv"
     soft_rpm_limit: 0.
     soft_current_limit: 0.

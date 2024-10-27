@@ -145,7 +145,7 @@ impl PopulationGenerator {
                 age,
                 gender,
                 weight,
-                10.,
+                0.5,
                 Self::generate_destination(self.floor_count, current_floor),
             )))
         } else {

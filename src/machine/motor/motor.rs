@@ -64,7 +64,7 @@ impl ElevatorMotor {
         );
 
         let max_torque = MotorSamples::get_max_tnm(&motor_samples) * parameters.gearbox_ratio;
-        let max_force =  max_torque * parameters.output_shaft_radius;
+        let max_force =  max_torque / parameters.output_shaft_radius;
 
         // I am unwrapping here because i know it will not panic
         let current_properties = MotorSamples::simulate_properties_from_current(&motor_samples, 0.)
@@ -105,18 +105,30 @@ impl ElevatorMotor {
         self.current_properties.rpm
     }
 
+    fn speed_to_rpm(&self, speed: f32) -> f32 {
+        speed * self.gearbox_ratio
+    }
+
+    fn rpm_to_speed(&self, rpm: f32) -> f32 {
+        rpm / self.gearbox_ratio
+    }
+
+    pub fn set_acceleration(&mut self, acceleration: f32) {
+        self.speed_pid.set_change_limit(self.speed_to_rpm(acceleration));
+    }
+
     pub fn get_target_speed(&self) -> f32 {
-        self.speed_pid.target / self.gearbox_ratio
+        self.rpm_to_speed(self.speed_pid.target / self.gearbox_ratio)
     }
 
     pub fn get_current_speed(&self) -> f32 {
         // this function gives the speed of the output shaft of the gear box
-        self.get_rpm() / self.gearbox_ratio
+        self.rpm_to_speed(self.get_rpm())
     }
 
     pub fn set_target_speed(&mut self, target: f32) -> bool {
         // this function sets the speed of the output shaft of the gear box
-        let motor_target = target*self.gearbox_ratio;
+        let motor_target = self.speed_to_rpm(target);
 
         // rpm limit is applied in pid controller
         self.speed_pid.set_target(motor_target)
@@ -146,9 +158,22 @@ impl ElevatorMotor {
         self.total_energy_used += self.current_properties.kwp_in * delta_time;
     }
 
+    pub fn limit_current(&self, current: f32) -> f32 {
+        let max_current = MotorSamples::get_max_current(&self.motor_samples);
+        if current > max_current {
+            max_current
+        } else if current < -max_current {
+            -max_current
+        } else {
+            current
+        }
+    }
+
     pub fn update(&mut self, delta_time: f32) {
         let current_change = self.speed_pid.update(self.get_rpm(), delta_time);
+
         self.current_current += current_change;
+        self.current_current = self.limit_current(self.current_current);
 
         self.give_current(self.current_current);
         self.plot(delta_time);

@@ -93,9 +93,12 @@ impl ElevatorSystem {
 
         match elevator.get_current_floor() {
             Some(floor) => {
+                println!("Elevator {} is at floor {}, loading", elevator_idx, floor);
+
                 let mut idx = 0;
                 while idx < self.queue[floor].len() {
-                    if elevator.can_fit(&self.queue[floor][idx]) {
+                    let can_fit = elevator.can_fit(&self.queue[floor][idx]);
+                    if can_fit {
                         let entity = self.queue[floor].remove(idx);
                         self.all_wait_times.push(entity.get_wait_time());
                         elevator.load(entity);
@@ -193,6 +196,9 @@ impl ElevatorSystem {
             self.load_elevator(idx);
 
             self.elevators[idx].update(delta_time);
+
+            println!("### Elevator {}", idx);
+            self.elevators[idx].debug_print();
         }
     }
 }
