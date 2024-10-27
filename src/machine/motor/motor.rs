@@ -190,7 +190,7 @@ mod tests {
 
     #[test]
     fn give_current() {
-        let mut motor = ElevatorMotor::from_file("param/motor_test_parameters.yaml").unwrap();
+        let mut motor = ElevatorMotor::from_file("param/test/motor_test_parameters.yaml").unwrap();
         let max_current = MotorSamples::get_max_current(&motor.motor_samples);
         motor.give_current(max_current-5.);
         assert!(motor.current_properties.rpm > 0.);
@@ -198,7 +198,7 @@ mod tests {
 
     #[test]
     fn give_negative_current() {
-        let mut motor = ElevatorMotor::from_file("param/motor_test_parameters.yaml").unwrap();
+        let mut motor = ElevatorMotor::from_file("param/test/motor_test_parameters.yaml").unwrap();
         let max_current = MotorSamples::get_max_current(&motor.motor_samples);
         motor.give_current(-max_current+5.);
         assert!(motor.current_properties.rpm < 0.);
@@ -207,7 +207,7 @@ mod tests {
     #[test]
     #[should_panic]
     fn overcurrent() {
-        let mut motor = ElevatorMotor::from_file("param/motor_test_parameters.yaml").unwrap();
+        let mut motor = ElevatorMotor::from_file("param/test/motor_test_parameters.yaml").unwrap();
         let max_current = MotorSamples::get_max_current(&motor.motor_samples);
         motor.give_current(max_current+5.);
     }
@@ -215,14 +215,14 @@ mod tests {
     #[test]
     #[should_panic]
     fn negative_overcurrent() {
-        let mut motor = ElevatorMotor::from_file("param/motor_test_parameters.yaml").unwrap();
+        let mut motor = ElevatorMotor::from_file("param/test/motor_test_parameters.yaml").unwrap();
         let max_current = MotorSamples::get_max_current(&motor.motor_samples);
         motor.give_current(-max_current-5.);
     }
 
     #[test]
     fn set_speed() {
-        let mut motor = ElevatorMotor::from_file("param/motor_test_parameters.yaml").unwrap();
+        let mut motor = ElevatorMotor::from_file("param/test/motor_test_parameters.yaml").unwrap();
         let max_rpm = MotorSamples::get_max_rpm(&motor.motor_samples);
         let target_speed: f32 = max_rpm/2.;
 
@@ -246,7 +246,7 @@ mod tests {
 
     #[test]
     fn set_negative_speed() {
-        let mut motor = ElevatorMotor::from_file("param/motor_test_parameters.yaml").unwrap();
+        let mut motor = ElevatorMotor::from_file("param/test/motor_test_parameters.yaml").unwrap();
         let max_rpm = MotorSamples::get_max_rpm(&motor.motor_samples);
         let target_speed: f32 = -max_rpm/2.;
 
@@ -270,7 +270,7 @@ mod tests {
 
     #[test]
     fn for_tuning() {
-        let mut motor = ElevatorMotor::from_file("param/motor_test_parameters.yaml").unwrap();
+        let mut motor = ElevatorMotor::from_file("param/test/motor_test_parameters.yaml").unwrap();
         let target_speed: f32 = 200.;
 
         motor.set_target_speed(target_speed);

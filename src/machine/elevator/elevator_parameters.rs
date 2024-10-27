@@ -57,7 +57,7 @@ mod tests {
 
     #[test]
     fn read() {
-        let parameters = ElevatorParameters::from_file("param/elevator_test_parameters.yaml").unwrap();
+        let parameters = ElevatorParameters::from_file("param/test/elevator_test_parameters.yaml").unwrap();
         println!("{:?}", parameters);
     }
 }

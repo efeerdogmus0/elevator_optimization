@@ -19,6 +19,7 @@
 - [x] motor yükü kaldırabiliyor mu test et (motorda max force var)
 
 - [ ] popülasyon yaratılışını düzelt
+- [ ] time step ve time değişiklikleri
 - [ ] basit algoritma ekle
 - [ ] yapay zeka ekle
 
