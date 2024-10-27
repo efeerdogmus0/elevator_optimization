@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2024 Tuna Gül
 
-use crate::machine::elevator::{ self, Elevator, ElevatorParameters };
+use crate::machine::elevator::{ Elevator, ElevatorParameters };
 use super::elevator_system_parameters::ElevatorSystemParameters;
 use crate::population::{ Boardable, PopulationGenerator };
 use crate::algorithms::ElevatorControllerAlgorithm;
@@ -9,6 +9,7 @@ use crate::algorithms::ElevatorControllerAlgorithm;
 use std::time::Instant;
 use std::error::Error;
 
+#[derive(Debug)]
 pub enum Direction {
     Up,
     Down,

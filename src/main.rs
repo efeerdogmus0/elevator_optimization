@@ -21,7 +21,8 @@ mod algorithms;
 mod population;
 
 use util::LinePlotter;
-use machine::elevator_system::ElevatorSystem;
+use machine::ElevatorSystem;
+use algorithms::SimpleElevatorController;
 
 use std::thread;
 use std::time::{Duration, Instant};
@@ -33,6 +34,11 @@ fn main() {
         This is free software, and you are welcome to redistribute it
         under certain conditions;
     ");
-    let mut system = ElevatorSystem::from_file("elevator_system_parameters.yaml").unwrap();
-    system.update();
+    let controller = Box::new(SimpleElevatorController::new());
+    let mut system = ElevatorSystem::from_file(controller, "elevator_system_parameters.yaml").unwrap();
+
+    loop {
+        system.update();
+    }
+
 }

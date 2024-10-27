@@ -244,7 +244,6 @@ impl Elevator {
 mod tests {
     // Import the outer module's functions
     use super::*;
-    use std::time::Instant;
 
     #[test]
     fn create() {
