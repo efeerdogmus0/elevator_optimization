@@ -4,13 +4,20 @@
 use crate::machine::elevator::{ self, Elevator, ElevatorParameters };
 use super::elevator_system_parameters::ElevatorSystemParameters;
 use crate::population::{ Boardable, PopulationGenerator };
+use crate::algorithms::ElevatorControllerAlgorithm;
 
 use std::time::Instant;
 use std::error::Error;
 
+pub enum Direction {
+    Up,
+    Down,
+}
+
 
 pub struct ElevatorSystem {
     floor_heights: Vec<f32>,
+    controller: Box<dyn ElevatorControllerAlgorithm>,
     queue: Vec<Vec<Box<dyn Boardable>>>, 
     pop_gen: PopulationGenerator,
     elevators: Vec<Elevator>,
@@ -22,13 +29,15 @@ pub struct ElevatorSystem {
 
 impl ElevatorSystem {
     pub fn from_file(
+        controller: Box<dyn ElevatorControllerAlgorithm>,
         file_path: &str,        
     ) -> Result<Self, Box<dyn Error>> {
         let parameters = ElevatorSystemParameters::from_file(file_path)?;
-        Ok(Self::new(parameters))
+        Ok(Self::new(controller, parameters))
     }
 
     pub fn new(
+        controller: Box<dyn ElevatorControllerAlgorithm>,
         parameters: ElevatorSystemParameters,
     ) -> Self {
         let mut elevators = Vec::new();
@@ -44,6 +53,7 @@ impl ElevatorSystem {
         let floor_count = parameters.floors.len();
         Self {
             floor_heights: parameters.floors,
+            controller,
             queue: Vec::with_capacity(floor_count),
             pop_gen: PopulationGenerator::new(floor_count),
             elevators,
@@ -136,11 +146,68 @@ impl ElevatorSystem {
         self.elevators[elevator_idx].set_target(floor_idx);
     }
 
+    pub fn get_call_buttons(&self) -> Vec<Option<Direction>> {
+        let mut call_buttons = Vec::new();
+        for (floor_idx, floor_queue) in self.queue.iter().enumerate() {
+            if floor_queue.is_empty() {
+                call_buttons.push(None);
+            } 
+            for entity in floor_queue {
+                if entity.get_destination() > floor_idx {
+                    call_buttons.push(Some(Direction::Up));
+                    break;
+                } 
+                else if entity.get_destination() < floor_idx {
+                    call_buttons.push(Some(Direction::Down));
+                    break;
+                }
+                else {
+                    panic!("
+                        1. The Industrial Revolution and its consequences have been 
+                        a disaster for the human race. They have greatly increased 
+                        the life-expectancy of those of us who live in “advanced” 
+                        countries, but they have destabilized society, have made life 
+                        unfulfilling, have subjected human beings to indignities, have 
+                        led to widespread psychological suffering (in the Third World 
+                        to physical suffering as well) and have inflicted severe damage 
+                        on the natural world. The continued development of technology 
+                        will worsen the situation. It will certainly subject human beings 
+                        to greater indignities and inflict greater damage on the natural 
+                        world, it will probably lead to greater social disruption and 
+                        psychological suffering, and it may lead to increased physical 
+                        suffering even in “advanced” countries.
+
+                        2. The industrial-technological system may survive or it may break
+                        down. If it survives, it MAY eventually achieve a low level of
+                        physical and psychological suffering, but only after passing through
+                        a long and very painful period of adjustment and only at the cost of
+                        permanently reducing human beings and many other living organisms to
+                        engineered products and mere cogs in the social machine. Furthermore,
+                        if the system survives, the consequences will be inevitable: There is
+                        no way of reforming or modifying the system so as to prevent it from
+                        depriving people of dignity and autonomy.
+
+                        https://www.washingtonpost.com/wp-srv/national/longterm/unabomber/manifesto.text.htm
+                    ");
+                }
+            }
+        }
+        call_buttons
+    }
+
+
     pub fn update(&mut self) {
         let delta_time = self.get_delta_time();
 
         // give birth to new homo sapiens
         self.update_population(delta_time);
+
+        let called_buttons = self.get_call_buttons();
+        self.controller.update(
+            delta_time,
+            &mut self.elevators,
+            called_buttons,
+        );
 
         for idx in 0..self.elevators.len() {
             self.unload_elevator(idx);

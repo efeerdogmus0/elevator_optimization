@@ -17,7 +17,7 @@
 
 mod util;
 mod machine;
-mod control_algorithms;
+mod algorithms;
 mod population;
 
 use util::LinePlotter;

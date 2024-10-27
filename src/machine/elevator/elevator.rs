@@ -313,6 +313,4 @@ mod tests {
         println!("Current height: {}", elevator.current_height);
         assert!(result);
     }
-
-
 }
