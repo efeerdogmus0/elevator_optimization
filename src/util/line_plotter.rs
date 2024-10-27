@@ -5,8 +5,8 @@ use std::error::Error;
 
 pub struct LinePlotter {
     root: DrawingArea<BitMapBackend<'static>, plotters::coord::Shift>,
-    start_time: Instant,
     points: Vec<(f32, f32)>,
+    elapsed: f32,
     output_file: String,
 } 
 
@@ -21,15 +21,15 @@ impl LinePlotter {
             Self {
                 root,
                 points: Vec::new(),
-                start_time: Instant::now(),
+                elapsed: 0.0,
                 output_file,
             }
         )
     }
 
-    pub fn add_point(&mut self, value: f32) {
-        let elapsed = self.start_time.elapsed().as_secs_f32();
-        self.points.push((elapsed, value));
+    pub fn add_point(&mut self, value: f32, delta_time: f32) {
+        self.elapsed += delta_time;
+        self.points.push((self.elapsed, value));
         
         // Keep only the most recent 1000 points for a smooth plot
         if self.points.len() > 1000 {
@@ -85,8 +85,8 @@ mod tests {
         let output_file = "data/debug/line_plotter_test.png".to_string();
         let mut plotter = LinePlotter::new(output_file).expect("Failed to initialize LinePlotter");
 
-        plotter.add_point(1.0);
-        plotter.add_point(2.0);
+        plotter.add_point(1.0, 1.0);
+        plotter.add_point(1.0, 2.0);
     }
 
     #[test]
@@ -95,9 +95,9 @@ mod tests {
         let mut plotter = LinePlotter::new(output_file.to_string()).expect("Failed to initialize LinePlotter");
 
         // Add some points and update the plot
-        plotter.add_point(1.0);
-        plotter.add_point(2.0);
-        plotter.add_point(3.0);
+        plotter.add_point(1.0, 1.0);
+        plotter.add_point(2.0, 2.0);
+        plotter.add_point(3.0, 3.0);
 
         // Ensure update runs without error
         let result = plotter.update();

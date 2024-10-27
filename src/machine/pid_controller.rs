@@ -261,9 +261,9 @@ impl PIDController {
         return true;
     }
 
-    fn plot(&mut self, output: f32) {
+    fn plot(&mut self, output: f32, delta_time: f32) {
         if let Some(line_plotter) = &mut self.line_plotter {
-            line_plotter.add_point(output);
+            line_plotter.add_point(output, delta_time);
             line_plotter.update().unwrap();
         }
     }
@@ -275,7 +275,7 @@ impl PIDController {
         }
 
         let output = self.calculate(current_value, delta_time);
-        self.plot(output);
+        self.plot(output, delta_time);
 
         // Return the output
         self.prev_output = output;

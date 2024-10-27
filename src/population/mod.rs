@@ -6,4 +6,6 @@ mod human;
 
 mod population_generator;
 
-use human::{ Human, HumanGroup };
+pub use population_generator::PopulationGenerator;
+pub use human::{ Human, HumanGroup, Gender};
+pub use boardable::Boardable;

@@ -16,7 +16,6 @@
 
 - [ ] Yiğitin popülasyon hesaplamalarını geçir
 
-- [ ] Update freq devre dışı bırak (bunu niye yazdığımı unuttum)
 - [ ] Kasnak çevre hız hesabı
 - [ ] gearbox test et
 - [ ] motor yükü kaldırabiliyor mu test et (motorda max force var)

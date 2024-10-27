@@ -135,9 +135,9 @@ impl ElevatorMotor {
             .expect("Motor current limit exceeded");
     }
 
-    fn plot(&mut self) {
+    fn plot(&mut self, delta_time: f32) {
         if let Some(line_plotter) = &mut self.line_plotter {
-            line_plotter.add_point(self.current_properties.rpm);
+            line_plotter.add_point(self.current_properties.rpm, delta_time);
             line_plotter.update().unwrap();
         }
     }
@@ -151,7 +151,7 @@ impl ElevatorMotor {
         self.current_current += current_change;
 
         self.give_current(self.current_current);
-        self.plot();
+        self.plot(delta_time);
     }
 }
 

@@ -16,6 +16,7 @@ pub struct ElevatorParameters {
     pub max_load: f32,
     pub elevator_mass: f32,
     pub elevator_counter_mass: f32,
+    pub area: f32,
 
     #[serde(default = "default_enable_debug_plotting")]
     pub enable_debug_plotting: bool,

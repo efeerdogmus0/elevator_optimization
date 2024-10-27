@@ -3,17 +3,18 @@ max_accel: 9999.
 elevator_mass: 100.
 elevator_counter_mass: 60.
 max_load: 50.
+area: 10.
 
 enable_debug_plotting: true
 plot_path: "data/debug/elevator_height.png"
 
 # Bu pid elevator height için
 pid_parameters:
-    kp: 0.09
+    kp: 5.
     ki: 0.
-    kd: 0.1
+    kd: 0.
     integral_limit: 0.
-    update_freq: 60.
+    update_freq: 10.
     tolerance: 0.1
 
     enable_debug_plotting: true
@@ -32,7 +33,7 @@ motor_parameters:
         ki: 0.
         kd: 0.001
         integral_limit: 0.
-        update_freq: 60.
+        update_freq: 10.
         tolerance: 10.
 
         enable_debug_plotting: false
@@ -42,7 +43,7 @@ motor_parameters:
         enable_target_limits: false
         change_limit: 0.
 
-    gearbox_ratio: 1.
+    gearbox_ratio: 10.
     output_shaft_radius: 1.
     sample_path: "data/motor_samples.csv"
     soft_rpm_limit: 0.
