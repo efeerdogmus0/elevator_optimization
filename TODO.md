@@ -13,12 +13,14 @@
 - [x] Büyük motor güncellemesinden sonra elevator kodları elden geçmeli
 - [x] asansör height pid limitleri ayarla
 - [x] Popülasyon temelleri
+- [x] Yiğitin popülasyon hesaplamalarını geçir
+- [x] Kasnak çevre hız hesabı
+- [x] gearbox test et
+- [x] motor yükü kaldırabiliyor mu test et (motorda max force var)
 
-- [ ] Yiğitin popülasyon hesaplamalarını geçir
-
-- [ ] Kasnak çevre hız hesabı
-- [ ] gearbox test et
-- [ ] motor yükü kaldırabiliyor mu test et (motorda max force var)
+- [ ] popülasyon yaratılışını düzelt
+- [ ] basit algoritma ekle
+- [ ] yapay zeka ekle
 
 
 # Uzak Gelecek
@@ -31,8 +33,8 @@
 
 
 ## Simülasyon Gerçekliğini Arttıranlar
-- [ ] insan yoğunluğu/saat ve yaş/saat grafiği
-- [ ] yaş/kütle grafikleri 
+- [x] insan yoğunluğu/saat ve yaş/saat grafiği
+- [x] yaş/kütle grafikleri 
 - [ ] asansör bekleyen insan sayısı / asansöre binme hızı grafiği
 - [ ] bir kişinin ortalam gittiği kat sayısı / bina uzunluğu
 - [ ] asansör içinde insan hareketlerinin düzensizliğiden kaynaklı rastgelelik ekle

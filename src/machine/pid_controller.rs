@@ -7,7 +7,7 @@ use crate::util::LinePlotter;
 
 
 // this struct is for parsing the pid parameters from a yaml file
-#[derive(Debug, Deserialize)]
+#[derive(Clone, Debug, Deserialize)]
 pub struct PIDParameters {
     kp: f32,
     ki: f32,
@@ -51,6 +51,7 @@ fn default_change_limit() -> f32 { 0. }
 
 
 // this is the real thing
+#[derive(Clone)]
 pub struct PIDController {
     pub target: f32,
     kp: f32,

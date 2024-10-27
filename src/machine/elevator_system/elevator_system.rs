@@ -34,7 +34,7 @@ pub struct ElevatorSystem {
 #[pymethods]
 impl ElevatorSystem {
     pub fn get_used_energy(&self) -> f32 {
-        let mut total = 0.0;
+        let mut total: f32 = 0.0;
         for elevator in &self.elevators {
             total += elevator.get_used_energy();
         }
@@ -64,6 +64,10 @@ impl ElevatorSystem {
             println!("### Elevator {}", idx);
             self.elevators[idx].debug_print();
         }
+    }
+
+    pub fn get_elevators(&self) -> Vec<Elevator> {
+        self.elevators.clone()
     }
 }
 

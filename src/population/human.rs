@@ -3,11 +3,13 @@ use plotters::series::AreaSeries;
 use super::boardable::Boardable;
 use crate::machine::Elevator;
 
+#[derive(Clone)]
 pub enum Gender {
     Male,
     Female,
 }
 
+#[derive(Clone)]
 pub struct Human {
     weight: f32,
     age: u8,
@@ -18,6 +20,10 @@ pub struct Human {
 }
 
 impl Boardable for Human {
+    fn clone_box(&self) -> Box<dyn Boardable> {
+        Box::new(self.clone())
+    }
+
     fn get_area(&self) -> f32 {
         self.area 
     }
@@ -69,6 +75,7 @@ impl Human {
 }
 
 
+#[derive(Clone)]
 pub struct HumanGroup {
     members: Vec<Human>,
 }
@@ -82,6 +89,10 @@ impl HumanGroup {
 }
 
 impl Boardable for HumanGroup {
+    fn clone_box(&self) -> Box<dyn Boardable> {
+        Box::new(self.clone())
+    }
+
     fn get_area(&self) -> f32 {
         // Sum up the area occupied by each human in the group
         self.members.iter().map(|h| h.area).sum()

@@ -4,6 +4,7 @@ use pyo3::prelude::*;
 
 
 #[pyclass]
+#[derive(Clone)]
 pub struct LinePlotter {
     output_file: String,
     points: Vec<(f32, f32)>,

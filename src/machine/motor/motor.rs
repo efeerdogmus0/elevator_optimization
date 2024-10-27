@@ -8,6 +8,7 @@ use crate::util::LinePlotter;
 use super::motor_samples::MotorSamples;
 use super::motor_parameters::MotorParameters;
 
+#[derive(Clone)]
 pub struct ElevatorMotor {
     motor_samples: Vec<MotorSamples>,
     current_properties: MotorSamples,
