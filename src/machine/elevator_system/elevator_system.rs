@@ -30,6 +30,7 @@ pub struct ElevatorSystem {
     time_of_day: u32,
     time_step: f32,
     hour_length: f32,
+    total_time_passed: f32,
 }
 
 
@@ -43,8 +44,20 @@ impl ElevatorSystem {
         total
     }
 
+    pub fn final_kwh(&self) -> f32 {
+        // normalde burda hour_len kullanıcaktım ama 
+        // onu sadece popülasyona özel kılmak istedim
+        let hours = self.get_total_time() / 3600.;
+        self.get_used_energy() * hours
+    }
+
+    pub fn get_total_time(&self) -> f32 {
+        self.total_time_passed
+    }
+
     pub fn update(&mut self) {
         let delta_time: f32 = self.get_delta_time();
+        self.total_time_passed += delta_time;
 
         // give birth to new homo sapiens
         self.generate_population(delta_time);
@@ -63,8 +76,8 @@ impl ElevatorSystem {
 
             self.elevators[idx].update(delta_time);
 
-            println!("### Elevator {}", idx);
-            self.elevators[idx].debug_print();
+            // println!("### Elevator {}", idx);
+            // self.elevators[idx].debug_print();
         }
     }
 
@@ -113,6 +126,7 @@ impl ElevatorSystem {
             time_of_day: parameters.time_of_day,
             time_step: parameters.time_step,
             hour_length: parameters.hour_length,
+            total_time_passed: 0.0,
         }
     }
 
@@ -143,6 +157,10 @@ impl ElevatorSystem {
                     self.queue[floor].len(),
                 );
 
+                // for debugging
+                let elevator_pre_load = elevator.get_entity_count();
+                let queue_pre_load = self.queue[floor].len();
+
                 let mut idx = 0;
                 while idx < self.queue[floor].len() {
                     let can_fit = elevator.can_fit(&self.queue[floor][idx]);
@@ -152,6 +170,14 @@ impl ElevatorSystem {
                         elevator.load(entity);
                     } else { idx += 1; }
                 }
+
+                // again for debugging
+                println!("Elevator entity change: {} -> {}, queue change: {} -> {}",
+                    elevator_pre_load,
+                    elevator.get_entity_count(),
+                    queue_pre_load,
+                    self.queue[floor].len(),
+                );
             },
             _ => {},
         };

@@ -76,6 +76,18 @@ impl Elevator {
         true
     }
 
+    pub fn get_max_height(&self) -> f32 {
+        self.floors[self.floors.len()-1]    
+    }
+
+    pub fn get_floor_count(&self) -> usize {
+        self.floors.len()
+    }
+
+    pub fn get_entity_count(&self) -> usize {
+        self.entities.len()
+    }
+
     pub fn get_current_height(&self) -> f32 {
         self.current_height
     }

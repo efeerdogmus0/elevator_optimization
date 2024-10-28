@@ -16,15 +16,9 @@ fn main() {
     let mut system = ElevatorSystem::from_file(controller, "param/system_parameters.yaml")
         .expect("Failed to create elevator system");
 
-    let start = Instant::now();
-    for _ in 0..10 {
-        println!("##### New loop");
+    for _ in 0..100 {
         system.update();
-        // if start.elapsed().as_secs() > 60 {
-        //     break;
-        // }
-        // thread::sleep(Duration::from_millis(1000));
     }
-    let energy = system.get_used_energy();
-    println!("Total energy used: {:.2} J", energy);
+
+    println!("Total energy cost: {:.2} TL", system.final_kwh() * 2.7);
 }

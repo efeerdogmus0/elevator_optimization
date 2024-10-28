@@ -18,10 +18,11 @@
 - [x] gearbox test et
 - [x] motor yükü kaldırabiliyor mu test et (motorda max force var)
 
-- [ ] popülasyon yaratılışını düzelt (tahmini 2 saat)
-- [ ] time step ve time değişiklikleri (tahmini 1 saat)
+- [x] time step ve time değişiklikleri (tahmini 1 saat)
+- [x] popülasyon yaratılışını düzelt (tahmini 2 saat)
 - [ ] basit algoritma ekle (tahmini 1 saat)
 - [ ] yapay zeka ekle (tahmini 6 saat)
+- [ ] floorların yüksekliğe göre sıralı olduğuna emin ol
 
 
 # Uzak Gelecek

@@ -1,113 +1,114 @@
+use pyo3::ffi::printfunc;
+
 use crate::machine::{ Elevator, Direction };
 use super::ElevatorControllerAlgorithm;
 
 pub struct SimpleElevatorController {
-    up_target: usize,    // Target floor for the upward-moving elevator
-    down_target: usize,  // Target floor for the downward-moving elevator
-    initialized: bool,   // Tracks whether the initial setup has been completed
+    up_elevator_idx: usize,
+    up_current_target: usize,
+    initialized: bool,
+
+    // max floor normalde süper gerekli değil ama 
+    // her seferinde elevators.len() - 1 yazmaya üşendim
+    max_floor: usize,
+    // daha production ready bir kod için belki kaldırılabilir
 }
 
 impl SimpleElevatorController {
     pub fn new() -> Self {
         Self {
-            up_target: 0,             // Initial target for the "up" elevator (bottom floor)
-            down_target: usize::MAX,  // Placeholder to indicate no initial target for the "down" elevator
+            // yukarı giden asansör
+            up_elevator_idx: 0,
+            // yukarı giden asansörün anlık hedef katı
+            up_current_target: 0,
             initialized: false,
+            max_floor: 0,
         }
     }
 
-    fn reverse_direction(&mut self, current_floor: usize, max_floor: usize, going_up: bool) -> usize {
-        // Reverse the target based on whether the elevator was going up or down
-        if going_up && current_floor == max_floor {
-            0 // Go to the bottom floor
-        } else if !going_up && current_floor == 0 {
-            max_floor // Go to the top floor
-        } else {
-            current_floor // Keep the same target if no reversal is needed
+    fn init_print(&self, elevators: &Vec<Elevator>) {
+        let el = &elevators[self.get_down_idx()];
+        println!("%{} Simple Elevator Algorithm initializing...", 
+            (el.get_current_height()/el.get_max_height()*100.0) as u32);
+    }
+
+    fn init(&mut self, elevators: &mut Vec<Elevator>) {
+        self.init_print(elevators);
+
+        self.max_floor = elevators[0].get_floor_count() - 1;
+        self.up_current_target = 0;
+        self.send_target(elevators);
+
+        if let Some(floor) = elevators[self.get_down_idx()].get_current_floor() {
+            if floor == self.max_floor {
+                self.initialized = true;
+                println!("Initial setup complete.");
+                println!("Up Elevator index: {}", self.get_up_idx());
+                println!("Down Elevator index: {}", self.get_down_idx());
+
+                self.up_current_target = 1;
+                self.send_target(elevators);
+            }
         }
     }
+
+    fn send_target(&mut self, elevators: &mut Vec<Elevator>) {
+        elevators[self.get_up_idx()].set_target(self.up_current_target);
+        elevators[self.get_down_idx()].set_target(self.max_floor - self.up_current_target);
+    }
+
+    fn switch_elevators(&mut self) {
+        self.up_elevator_idx = 1 - self.up_elevator_idx;
+        self.up_current_target = 0;
+    }
+
+    pub fn get_up_idx(&self) -> usize {
+        self.up_elevator_idx
+    }
+
+    pub fn get_down_idx(&self) -> usize {
+        1 - self.up_elevator_idx
+    }
+
+    fn are_both_targets_reached(&self, elevators: &Vec<Elevator>) -> bool {
+        if elevators[self.get_up_idx()].get_current_floor() == Some(self.up_current_target) {
+            if elevators[self.get_down_idx()].get_current_floor() == Some(self.max_floor - self.up_current_target) {
+                return true;
+            }
+        }
+        false
+    }
 }
+
 
 impl ElevatorControllerAlgorithm for SimpleElevatorController {
     fn update(
         &mut self,
         _delta_time: f32,
         elevators: &mut Vec<Elevator>,
-        calls: Vec<Direction>,
+        _calls: Vec<Direction>,
     ) {
         // Ensure we have exactly two elevators; otherwise, panic
         if elevators.len() != 2 {
             panic!("SimpleElevatorController requires exactly two elevators.");
         }
 
+        // if not initialized, initialize elevators
         if !self.initialized {
-            // On the first update, set one elevator to the top floor and the other to the bottom
-            let max_floor = elevators.len() - 1;
-            elevators[0].set_target(0);         // Set the first elevator to start at the bottom
-            elevators[1].set_target(max_floor); // Set the second elevator to start at the top
-            self.initialized = true;
-            self.up_target = max_floor;   // Set initial target for the up elevator to the top
-            self.down_target = 0;         // Set initial target for the down elevator to the bottom
-            println!("Initial setup complete: Elevator 1 set to top floor, Elevator 0 to bottom floor.");
+            self.init(elevators);
             return;
         }
+        
+        if self.are_both_targets_reached(elevators) {
+            println!("Up Elevator at floor: {}", self.up_current_target);
+            println!("Down Elevator at floor: {}", self.max_floor - self.up_current_target);
 
-        let max_floor = elevators.len() - 1;
-
-        // Split the elevators vector into two separate mutable references
-        let (up_elevator_slice, down_elevator_slice) = elevators.split_at_mut(1);
-        let up_elevator = &mut up_elevator_slice[0];
-        let down_elevator = &mut down_elevator_slice[0];
-
-        // For up elevator: Reverse direction if it reached its target floor
-        if let Some(current_floor) = up_elevator.get_current_floor() {
-            if current_floor == self.up_target {
-                self.up_target = self.reverse_direction(current_floor, max_floor, true);
+            if self.up_current_target == self.max_floor {
+                self.switch_elevators();
+                println!("Switching elevators");
             }
-            up_elevator.set_target(self.up_target);
+            self.up_current_target += 1;
+            self.send_target(elevators);
         }
-
-        // For down elevator: Reverse direction if it reached its target floor
-        if let Some(current_floor) = down_elevator.get_current_floor() {
-            if current_floor == self.down_target {
-                self.down_target = self.reverse_direction(current_floor, max_floor, false);
-            }
-            down_elevator.set_target(self.down_target);
-        }
-
-        // Process calls to direct elevators to requested floors
-        for (floor, call) in calls.iter().enumerate() {
-            match call {
-                Direction::Up => {
-                    println!(
-                        "Call received on floor {} to move {:?}. Elevator targets updated accordingly.",
-                        floor, call
-                    );
-                    up_elevator.set_target(floor)
-                },
-                Direction::Down => {
-                    println!(
-                        "Call received on floor {} to move {:?}. Elevator targets updated accordingly.",
-                        floor, call
-                    );
-                    down_elevator.set_target(floor)
-                },
-                Direction::Both => {
-                    println!(
-                        "Call received on floor {} to move {:?}. Elevator targets updated accordingly.",
-                        floor, call
-                    );
-                    up_elevator.set_target(floor);
-                    down_elevator.set_target(floor);
-                }
-                Direction::None => {}
-            }
-        }
-
-        println!(
-            "Elevator 0 (Up) target set to floor {}. Elevator 1 (Down) target set to floor {}.",
-            self.up_target,
-            self.down_target
-        );
     }
 }
