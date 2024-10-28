@@ -11,6 +11,7 @@ time_step: 0.1
 # kaç tane time_step geçtiğinde bir saat geçmiş gibi kabul 
 # edeceğimizi de bu belirliyor
 hour_length: 60
+max_human_count: 100
 
 floors:
     - 0

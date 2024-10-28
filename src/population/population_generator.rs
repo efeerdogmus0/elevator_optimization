@@ -24,6 +24,8 @@ pub struct PopulationGenerator {
     avg_male_weight: WeightDistribution,
     commute_by_age: CommuteByAge, // Field for commute probabilities by age
     accumulated_entity_probability: f32,
+    total_entity_generated: u32,
+    total_human_generated: u32,
 }
 
 impl PopulationGenerator {
@@ -45,8 +47,18 @@ impl PopulationGenerator {
             avg_female_weight,
             avg_male_weight,
             commute_by_age,
-            accumulated_entity_probability: 0.
+            accumulated_entity_probability: 0.,
+            total_entity_generated: 0,
+            total_human_generated: 0,
         }
+    }
+
+    pub fn get_human_generated(&self) -> u32 {
+        self.total_human_generated
+    }
+
+    pub fn get_entity_generated(&self) -> u32 {
+        self.total_entity_generated
     }
 
     fn parse_avg_passenger_by_time(file_path: &str) -> Result<Vec<(u32, f32)>, Box<dyn Error>> {
@@ -111,6 +123,7 @@ impl PopulationGenerator {
             if let Some(e) = entity {
                 generated_entities.push((current_floor, e));
                 self.accumulated_entity_probability -= 1.;
+                self.total_entity_generated += 1;
             }
         }
 
@@ -166,23 +179,24 @@ impl PopulationGenerator {
         }
     }
 
-    fn create_human_group(&self, current_floor: usize, time: u32) -> Option<Box<dyn Boardable>> {
+    fn create_human_group(&mut self, current_floor: usize, time: u32) -> Option<Box<dyn Boardable>> {
         let destination_floor = Self::generate_destination(self.floor_count, current_floor);
         let mut members: Vec<Human> = Vec::new();
         let mut rng = rand::thread_rng();
         let group_size = rng.gen_range(2..5);
 
+        // grup üye yaşları genelde birbirine yakın olur
+        let age = Self::generate_age();
         for _ in 0..group_size {
             let gender = Self::generate_gender();
-            let age = Self::generate_age();
 
             let weight = match gender {
                 Gender::Male => self.avg_male_weight.randomly_generate(age as u32),
                 Gender::Female => self.avg_female_weight.randomly_generate(age as u32),
             }.unwrap();
 
-            // Check if each group member wants to use the elevator
             if self.will_use_elevator(age, time) {
+                self.total_human_generated += 1;
                 members.push(Human::new(age, gender, weight, 10., destination_floor));
             }
         }

@@ -16,9 +16,10 @@ fn main() {
     let mut system = ElevatorSystem::from_file(controller, "param/system_parameters.yaml")
         .expect("Failed to create elevator system");
 
-    for _ in 0..100 {
-        system.update();
+    // system.update() bitince false veriyor
+    while system.update() {
+
     }
 
-    println!("Total energy cost: {:.2} TL", system.final_kwh() * 2.7);
+    println!("Total energy cost: {:.2}", system.final_kwh() * 2.7);
 }

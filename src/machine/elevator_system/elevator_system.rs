@@ -31,6 +31,7 @@ pub struct ElevatorSystem {
     time_step: f32,
     hour_length: f32,
     total_time_passed: f32,
+    max_human_count: u32,
 }
 
 
@@ -55,9 +56,18 @@ impl ElevatorSystem {
         self.total_time_passed
     }
 
-    pub fn update(&mut self) {
+    fn update_time_of_day(&mut self) {
+        self.time_of_day += ((self.total_time_passed / self.hour_length) % 24.) as u32;
+    }
+
+    pub fn update(&mut self) -> bool {
         let delta_time: f32 = self.get_delta_time();
         self.total_time_passed += delta_time;
+        self.update_time_of_day();
+
+        if self.pop_gen.get_human_generated() >= self.max_human_count {
+            return false;
+        }
 
         // give birth to new homo sapiens
         self.generate_population(delta_time);
@@ -79,6 +89,7 @@ impl ElevatorSystem {
             // println!("### Elevator {}", idx);
             // self.elevators[idx].debug_print();
         }
+        true
     }
 
     pub fn get_elevators(&self) -> Vec<Elevator> {
@@ -127,6 +138,7 @@ impl ElevatorSystem {
             time_step: parameters.time_step,
             hour_length: parameters.hour_length,
             total_time_passed: 0.0,
+            max_human_count: parameters.max_human_count,
         }
     }
 

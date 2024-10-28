@@ -13,6 +13,7 @@ pub struct ElevatorSystemParameters {
     pub time_of_day: u32,
     pub time_step: f32,
     pub hour_length: f32,
+    pub max_human_count: u32,
 }
 
 
