@@ -25,3 +25,6 @@ Bi de lanet olsun ki [portage](https://wiki.gentoo.org/wiki/Portage) da [lto](ht
 normalde pytorch bindingleri ile rs torch kullancaktım ama derlerken sıkıntılar çıktı bilgisayarımda yer doldu falan ben de neural ağı baştan yazmaya karar verdim muhtemelen kurulum yapmaktan daha hızlı olucak. 
 
 İleriki versiyonlarda tüm algoritmaların statespace alması en mantıklısı olur
+
+### bu hayat gerçekten insanozor
+gece gündüz yazılım yapmayı özlemişim, eğlenceli birkaç günün de sonuna geldik :-(
