@@ -34,7 +34,8 @@
 - [x] Motor girdi/çıktı ve enerji bağlantısı daha gerçekçi bir fonksiyonla değişebilir (şu an doğrusal)
 - [x] Motorun gearbox ratiosu
 - [x] Motorun özelliklerini temsil eden fonksiyon geliştirilebilir
-
+- [ ] Sonraki hayatında sansörlere gidiş yönü ekle (dün gece beyin ölümüm gerçekleştiği için 
+        maalesef bu ömürde yazmam mümkün değil)
 
 ## Simülasyon Gerçekliğini Arttıranlar
 - [x] insan yoğunluğu/saat ve yaş/saat grafiği

@@ -77,6 +77,10 @@ impl Elevator {
         true
     }
 
+    pub fn get_floor_height(&self, idx: usize) -> f32 {
+        self.floors[idx]
+    }
+
     pub fn get_max_height(&self) -> f32 {
         self.floors[self.floors.len()-1]    
     }

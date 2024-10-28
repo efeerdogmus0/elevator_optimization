@@ -3,11 +3,11 @@
 
 mod controller;
 mod simple_algorithm;
-// mod nearest_car_algorithm;
+mod nearest_car_algorithm;
 // mod simple_collective_control_algorithm;
 
 pub use controller::ElevatorControllerAlgorithm;
 pub use simple_algorithm::SimpleElevatorController;
-// pub use nearest_car_algorithm::NearestCarController;
+pub use nearest_car_algorithm::NearestCarDispatchController;
 // pub use simple_collective_control_algorithm::SimpleCollectiveControl;
 

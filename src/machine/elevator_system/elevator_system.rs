@@ -80,6 +80,10 @@ impl Queue {
         &mut self.entities[floor]
     }
 
+    pub fn get_floor_count(&self) -> usize {
+        self.entities.len()
+    }
+
     pub fn update_wait_time(&mut self, delta_time: f32) {
         for floor_queue in &mut self.entities {
             for entity in floor_queue {
@@ -97,7 +101,6 @@ pub struct ElevatorSystem {
     queue: Queue,
     pop_gen: PopulationGenerator,
     elevators: Vec<Elevator>,
-    all_wait_times: Vec<f32>,
     time_of_day: u32,
     time_step: f32,
     hour_length: f32,
@@ -121,6 +124,22 @@ impl ElevatorSystem {
         // onu sadece popülasyona özel kılmak istedim
         let hours = self.get_total_time() / 3600.;
         self.get_used_energy() * hours
+    }
+
+    pub fn get_total_wait_time(&self) -> f32 {
+        let mut total: f32 = 0.0;
+        for wait_time in &self.queue.wait_times {
+            total += wait_time;
+        }
+
+        if total > self.queue.wait_times.len() as f32 * self.get_total_time() {
+            for _ in 0..10 {
+                println!("There has been a mistake in the calculation of total wait time");
+                println!("Please contact the supreme leader tunapro1234 for further instructions");
+            }
+        }
+
+        total
     }
 
     pub fn get_total_time(&self) -> f32 {
@@ -221,7 +240,6 @@ impl ElevatorSystem {
             queue: Queue::new(floor_count),
             pop_gen: PopulationGenerator::new(floor_count),
             elevators,
-            all_wait_times: Vec::new(),
             time_of_day: parameters.time_of_day,
             time_step: parameters.time_step,
             hour_length: parameters.hour_length,
