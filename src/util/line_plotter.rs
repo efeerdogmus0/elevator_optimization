@@ -1,7 +1,9 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2024 Tuna Gül
+
 use plotters::prelude::*;
 use std::error::Error;
 use pyo3::prelude::*;
-
 
 #[pyclass]
 #[derive(Clone)]

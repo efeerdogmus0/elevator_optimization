@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (C) 2024 Tuna Gül
+
 use rand::Rng;
 use serde::{Serialize, Deserialize};
 use std::fs::File;
