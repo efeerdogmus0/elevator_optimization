@@ -1,7 +1,8 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2024 Tuna Gül
 
-use crate::machine::{ Elevator, Direction };
+use crate::machine::{ Elevator, Direction, Queue };
+use crate::population::Boardable;
 
 pub trait ElevatorControllerAlgorithm: Send + Sync{
     /// Updates the state of the elevator system.
@@ -15,6 +16,7 @@ pub trait ElevatorControllerAlgorithm: Send + Sync{
         &mut self,
         delta_time: f32,
         elevators: &mut Vec<Elevator>,
+        queue: &mut Queue,
         calls: Vec<Direction>,
     );
 }

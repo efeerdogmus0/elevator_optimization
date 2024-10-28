@@ -7,4 +7,4 @@ mod elevator;
 mod elevator_system;
 
 pub use elevator::Elevator;
-pub use elevator_system::{ ElevatorSystem, Direction };
+pub use elevator_system::{ ElevatorSystem, Direction, Queue };

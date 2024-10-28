@@ -17,13 +17,84 @@ pub enum Direction {
     None,
 }
 
+pub struct Queue {
+    entities: Vec<Vec<Box<dyn Boardable>>>,
+    wait_times: Vec<f32>,
+}
+
+impl Queue {
+    pub fn new(floor_count: usize) -> Self {
+        let mut entities = Vec::with_capacity(floor_count);
+        for _ in 0..floor_count {
+            entities.push(Vec::new());
+        }
+        Self {
+            entities,
+            wait_times: Vec::new(),
+        }
+    }
+
+    pub fn is_empty(&self) -> bool {
+        for floor in 0..self.len() {
+            if !self.is_floor_empty(floor) {
+                return false;
+            }
+        }
+        true
+    }
+
+    pub fn is_floor_empty(&self, floor: usize) -> bool {
+        self.entities[floor].is_empty()
+    }
+
+    pub fn get(&mut self, floor: usize, entity_idx: usize) -> &Box<dyn Boardable> {
+        &self.entities[floor][entity_idx]
+    }
+
+    pub fn get_mut(&mut self, floor: usize, entity_idx: usize) -> &mut Box<dyn Boardable> {
+        &mut self.entities[floor][entity_idx]
+    }
+
+    pub fn remove(&mut self, floor: usize, entity_idx: usize) -> Option<Box<dyn Boardable>> {
+        if self.entities[floor].is_empty() {
+            return None;
+        }
+        let entity = self.entities[floor].remove(entity_idx);
+        self.wait_times.push(entity.get_wait_time());
+        Some(entity)
+    }
+
+    pub fn add(&mut self, floor: usize, entity: Box<dyn Boardable>) {
+        self.entities[floor].push(entity);
+    }
+
+    pub fn len(&self) -> usize {
+        self.entities.len()
+    }
+
+    pub fn get_floor_queue(&self, floor: usize) -> &Vec<Box<dyn Boardable>> {
+        &self.entities[floor]
+    }
+
+    pub fn get_floor_queue_mut(&mut self, floor: usize) -> &mut Vec<Box<dyn Boardable>> {
+        &mut self.entities[floor]
+    }
+
+    pub fn update_wait_time(&mut self, delta_time: f32) {
+        for floor_queue in &mut self.entities {
+            for entity in floor_queue {
+                entity.increase_wait_time(delta_time);
+            }
+        }
+    }
+}
 
 
 #[pyclass]
 pub struct ElevatorSystem {
     floor_heights: Vec<f32>,
     controller: Box<dyn ElevatorControllerAlgorithm>,
-    queue: Vec<Vec<Box<dyn Boardable>>>, 
+    queue: Queue,
     pop_gen: PopulationGenerator,
     elevators: Vec<Elevator>,
     all_wait_times: Vec<f32>,
@@ -60,29 +131,50 @@ impl ElevatorSystem {
         self.time_of_day += ((self.total_time_passed / self.hour_length) % 24.) as u32;
     }
 
+    pub fn is_finished(&self) -> bool {
+        if self.pop_gen.get_human_generated() < self.max_human_count {
+            return false;
+        }
+
+        for elevator in &self.elevators {
+            if elevator.get_entity_count() > 0 {
+                return false;
+            }
+        }
+
+        if !self.queue.is_empty() {
+            return false;
+        }
+
+        true
+    }
+
     pub fn update(&mut self) -> bool {
         let delta_time: f32 = self.get_delta_time();
         self.total_time_passed += delta_time;
         self.update_time_of_day();
 
-        if self.pop_gen.get_human_generated() >= self.max_human_count {
+        if self.is_finished() {
             return false;
         }
 
         // give birth to new homo sapiens
-        self.generate_population(delta_time);
-        self.update_queue_wait_time(delta_time);
+        if self.pop_gen.get_human_generated() < self.max_human_count {
+            self.generate_population(delta_time);
+        } 
+        self.queue.update_wait_time(delta_time);
 
         let called_buttons = self.get_call_buttons();
         self.controller.update(
             delta_time,
             &mut self.elevators,
+            &mut self.queue,
             called_buttons,
         );
 
         for idx in 0..self.elevators.len() {
-            self.elevators[idx].unload();
-            self.load_elevator(idx);
+            // self.elevators[idx].unload();
+            // self.load_elevator(idx);
 
             self.elevators[idx].update(delta_time);
 
@@ -122,15 +214,11 @@ impl ElevatorSystem {
         }
         let floor_count = parameters.floors.len();
 
-        let mut queue = Vec::with_capacity(floor_count);
-        for _ in 0..floor_count {
-            queue.push(Vec::new());
-        }
 
         Self {
             floor_heights: parameters.floors,
             controller,
-            queue,
+            queue: Queue::new(floor_count),
             pop_gen: PopulationGenerator::new(floor_count),
             elevators,
             all_wait_times: Vec::new(),
@@ -152,49 +240,6 @@ impl ElevatorSystem {
         self.time_step
     }
 
-    fn load_elevator(&mut self, elevator_idx: usize) {
-        let elevator = &mut self.elevators[elevator_idx];
-        if !elevator.can_board() {
-            return;
-        }
-
-        match elevator.get_current_floor() {
-            Some(floor) => {
-                if self.queue[floor].is_empty() {
-                    return;
-                }
-                println!("Elevator {} is at floor {} and loading, queue len: {}", 
-                    elevator_idx, 
-                    floor,
-                    self.queue[floor].len(),
-                );
-
-                // for debugging
-                let elevator_pre_load = elevator.get_entity_count();
-                let queue_pre_load = self.queue[floor].len();
-
-                let mut idx = 0;
-                while idx < self.queue[floor].len() {
-                    let can_fit = elevator.can_fit(&self.queue[floor][idx]);
-                    if can_fit {
-                        let entity = self.queue[floor].remove(idx);
-                        self.all_wait_times.push(entity.get_wait_time());
-                        elevator.load(entity);
-                    } else { idx += 1; }
-                }
-
-                // again for debugging
-                println!("Elevator entity change: {} -> {}, queue change: {} -> {}",
-                    elevator_pre_load,
-                    elevator.get_entity_count(),
-                    queue_pre_load,
-                    self.queue[floor].len(),
-                );
-            },
-            _ => {},
-        };
-    }
-
     fn generate_population(&mut self, delta_time: f32) {
         let generated = self.pop_gen.generate(
             self.time_of_day, 
@@ -203,14 +248,16 @@ impl ElevatorSystem {
         );
 
         for (floor, entity) in generated {
-            self.queue[floor].push(entity);
+            self.queue.add(floor, entity);
         }
     }
 
     pub fn get_call_buttons(&self) -> Vec<Direction> {
         let mut call_buttons = vec![Direction::None; self.queue.len()];
 
-        for (floor_idx, floor_queue) in self.queue.iter().enumerate() {
+        for floor_idx in 0..self.queue.len() {
+            let floor_queue = self.queue.get_floor_queue(floor_idx);
+
             if floor_queue.is_empty() {
                 call_buttons[floor_idx] = Direction::None;
                 continue;
@@ -271,11 +318,4 @@ impl ElevatorSystem {
         call_buttons
     }
 
-    fn update_queue_wait_time(&mut self, delta_time: f32) {
-        for floor_queue in &mut self.queue {
-            for entity in floor_queue {
-                entity.increase_wait_time(delta_time);
-            }
-        }
-    }
 }

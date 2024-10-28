@@ -3,7 +3,7 @@ max_accel: 9999.
 elevator_mass: 100.
 elevator_counter_mass: 60.
 max_load: 1600.
-area: 10.
+area: 100.
 
 enable_debug_plotting: true
 plot_path: "data/debug/elevator_height.png"

@@ -183,7 +183,7 @@ impl PopulationGenerator {
         let destination_floor = Self::generate_destination(self.floor_count, current_floor);
         let mut members: Vec<Human> = Vec::new();
         let mut rng = rand::thread_rng();
-        let group_size = rng.gen_range(2..5);
+        let group_size = rng.gen_range(2..3);
 
         // grup üye yaşları genelde birbirine yakın olur
         let age = Self::generate_age();

@@ -5,6 +5,6 @@ mod elevator_system;
 mod elevator_system_parameters;
 mod elevator_system_tests;
 
-pub use elevator_system::{ ElevatorSystem, Direction };
+pub use elevator_system::{ ElevatorSystem, Direction, Queue};
 // i am not sure if i will need this
 // pub use elevator_system_parameters::ElevatorSystemParameters;

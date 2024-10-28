@@ -1,7 +1,8 @@
 use pyo3::ffi::printfunc;
 
-use crate::machine::{ Elevator, Direction };
+use crate::machine::{ Elevator, Direction, Queue };
 use super::ElevatorControllerAlgorithm;
+use crate::population::Boardable;
 
 pub struct SimpleElevatorController {
     up_elevator_idx: usize,
@@ -78,6 +79,67 @@ impl SimpleElevatorController {
         }
         false
     }
+
+    // fn unload_elevators(&self, elevators: &mut Vec<Elevator>) {
+    //     if elevators[0].get_entity_count() > 0 {
+    //         elevators[0].unload();
+    //     }
+    //     if elevators[1].get_entity_count() > 0 {
+    //         elevators[1].unload();
+    //     }
+    // }
+
+    // fn load_elevators(&mut self, elevators: &mut Vec<Elevator>, queue: &mut Queue) {
+    //     self.load_elevator(&mut elevators, self.get_up_idx(), queue);
+    //     self.load_elevator(&mut elevators, self.get_down_idx(), queue);
+    // }
+
+    fn load_elevator(&mut self, is_up: bool, elevator: &mut Elevator, queue: &mut Queue) {
+        if !elevator.can_board() {
+            return;
+        }
+
+        match elevator.get_current_floor() {
+            Some(floor) => {
+                if queue.is_floor_empty(floor) {
+                    return;
+                }
+
+                println!("Elevator is at floor {} and loading, queue len: {}", 
+                    floor,
+                    queue.get_floor_queue(floor).len(),
+                );
+
+                let mut idx = 0;
+                while idx < queue.get_floor_queue(floor).len() {
+                    let entity = queue.get(floor, idx);
+
+                    if floor != 0 && floor != self.max_floor {
+                        // yukarı gidiyosa ve aşağı giden asansöre binmeye çalışıyosa boşver
+                        if entity.get_destination() > floor && !is_up {
+                            idx += 1;
+                            continue;
+                        }
+
+                        // aşağı gidiyosa ve yukarı giden asansöre binmeye çalışıyosa boşver
+                        if entity.get_destination() < floor && is_up {
+                            idx += 1;
+                            continue;
+                        }
+                    }
+
+                    // doğru yöndeyse bindir
+                    let can_fit = elevator.can_fit(entity);
+                    if can_fit {
+                        let entity = queue.remove(floor, idx).unwrap();
+                        elevator.load(entity);
+                    } else { idx += 1; }
+
+                }
+            },
+            _ => {},
+        };
+    }
 }
 
 
@@ -86,6 +148,7 @@ impl ElevatorControllerAlgorithm for SimpleElevatorController {
         &mut self,
         _delta_time: f32,
         elevators: &mut Vec<Elevator>,
+        queue: &mut Queue,
         _calls: Vec<Direction>,
     ) {
         // Ensure we have exactly two elevators; otherwise, panic
@@ -103,9 +166,16 @@ impl ElevatorControllerAlgorithm for SimpleElevatorController {
             println!("Up Elevator at floor: {}", self.up_current_target);
             println!("Down Elevator at floor: {}", self.max_floor - self.up_current_target);
 
+            elevators[self.get_up_idx()].unload();
+            elevators[self.get_down_idx()].unload();
+            self.load_elevator(true, &mut elevators[self.get_up_idx()], queue);
+            self.load_elevator(false, &mut elevators[self.get_down_idx()], queue);
+
             if self.up_current_target == self.max_floor {
                 self.switch_elevators();
                 println!("Switching elevators");
+                println!("elevator[0] entitiy count: {}", elevators[0].get_entity_count());
+                println!("elevator[1] entitiy count: {}", elevators[1].get_entity_count());
             }
             self.up_current_target += 1;
             self.send_target(elevators);

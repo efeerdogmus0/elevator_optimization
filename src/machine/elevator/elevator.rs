@@ -44,7 +44,6 @@ impl Elevator {
     
     pub fn unload(&mut self) {
         let mut idx = 0;
-        let total_unloaded =
 
         while idx < self.entities.len() {
             let entity = &self.entities[idx];
@@ -53,9 +52,11 @@ impl Elevator {
             let current_floor = self.get_current_floor();
 
             match current_floor {
-                None => { idx += 1; continue;}
+                None => { return; }
                 Some(current_floor) => {
+                    println!("Entity destination: {}, current floor: {}", entity_destination, current_floor);
                     if entity_destination == current_floor {
+                        println!("Entity Leaving");
                         self.current_load -= entity.get_weight();
                         self.area += entity.get_area();
                         self.entities.remove(idx);
@@ -129,7 +130,7 @@ impl Elevator {
         self.motor.get_current_speed()
     }
 
-    pub fn get_target_floors(&self) -> Vec<usize> {
+    pub fn get_insider_targets(&self) -> Vec<usize> {
         self.entities.iter()
             .map(|entity| entity.get_destination())
             .collect()

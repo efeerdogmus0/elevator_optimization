@@ -18,9 +18,11 @@
 - [x] gearbox test et
 - [x] motor yükü kaldırabiliyor mu test et (motorda max force var)
 
+### Son 7.5
 - [x] time step ve time değişiklikleri (tahmini 1 saat)
 - [x] popülasyon yaratılışını düzelt (tahmini 2 saat)
-- [ ] basit algoritma ekle (tahmini 1 saat)
+- [x] basit algoritma ekle (tahmini 1 saat)
+- [x] Wait for elevators to empty out at the end
 - [ ] yapay zeka ekle (tahmini 6 saat)
 - [ ] floorların yüksekliğe göre sıralı olduğuna emin ol
 
