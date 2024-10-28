@@ -19,3 +19,4 @@ Eğer repo başkaları tarafından ilgi görmeye başlarsa bu readmeyi daha cidd
 lütfen vereceğiniz işlerin gerçek deadlinenını söylemek yerine daha erken bir tarih söyleyin genel olarak bi yetiştirememe problemimiz var.
 
 Bi de lanet olsun ki [portage](https://wiki.gentoo.org/wiki/Portage) da [lto](https://wiki.gentoo.org/wiki/LTO) açık, pytorchun rust bindingleri derlenmiyor. eğer bikaç saat içinde sıkıntıyı çözüp derleyebilirsem yapay zeka algoritmasını da yazıcam.
+-(bikaç saat sonraki tuna) derlenmedi

@@ -51,4 +51,8 @@
 - [ ] Normal Asansör Algoritmaları
 
 
+## Yarışmadan Sonra Toparlamada Eklenecekler
+- [ ] Direction enumu field olarak elevatora eklenmeli
+- [ ] Asansör içinde beklenen süre kayıt edilmeli
+
 

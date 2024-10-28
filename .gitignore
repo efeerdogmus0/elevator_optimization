@@ -1,4 +1,6 @@
 data/debug
+rstorch/
+
 # Rust
 /target
 
