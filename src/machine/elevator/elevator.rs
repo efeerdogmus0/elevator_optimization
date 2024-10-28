@@ -42,6 +42,14 @@ impl Elevator {
         self.elevator_mass + self.current_load + self.elevator_counter_mass
     }
     
+    pub fn get_current_load(&self) -> f32 {
+        self.current_load
+    }
+    
+    pub fn get_available_area(&self) -> f32 {
+        self.area
+    }
+
     pub fn unload(&mut self) {
         let mut idx = 0;
 

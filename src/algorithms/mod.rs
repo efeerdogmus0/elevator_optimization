@@ -4,6 +4,7 @@
 mod controller;
 mod simple_algorithm;
 mod nearest_car_algorithm;
+mod deep_reinforcement;
 // mod simple_collective_control_algorithm;
 
 pub use controller::ElevatorControllerAlgorithm;

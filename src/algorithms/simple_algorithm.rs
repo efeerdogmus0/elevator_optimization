@@ -33,7 +33,7 @@ impl SimpleElevatorController {
             (el.get_current_height()/el.get_max_height()*100.0) as u32);
     }
 
-    fn init(&mut self, elevators: &mut Vec<Elevator>) {
+    fn prepare_elevators(&mut self, elevators: &mut Vec<Elevator>) {
         self.init_print(elevators);
 
         self.max_floor = elevators[0].get_floor_count() - 1;
@@ -144,6 +144,12 @@ impl SimpleElevatorController {
 
 
 impl ElevatorControllerAlgorithm for SimpleElevatorController {
+    fn init(
+        &mut self,
+        _elevator_count: usize, 
+        _num_elevators: usize
+    ) { }
+
     fn update(
         &mut self,
         _delta_time: f32,
@@ -158,7 +164,7 @@ impl ElevatorControllerAlgorithm for SimpleElevatorController {
 
         // if not initialized, initialize elevators
         if !self.initialized {
-            self.init(elevators);
+            self.prepare_elevators(elevators);
             return;
         }
         

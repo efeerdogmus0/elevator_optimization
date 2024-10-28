@@ -13,8 +13,8 @@ fn main() {
         under certain conditions;
     ");
 
-    let controller = Box::new(SimpleElevatorController::new());
-    // let controller = Box::new(NearestCarDispatchController::new(2));
+    // let controller = Box::new(SimpleElevatorController::new());
+    let controller = Box::new(NearestCarDispatchController::new(2));
 
     let mut system = ElevatorSystem::from_file(controller, "param/system_parameters.yaml")
         .expect("Failed to create elevator system");

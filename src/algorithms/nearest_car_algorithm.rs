@@ -2,13 +2,15 @@ use crate::machine::{Elevator, Direction, Queue};
 use super::ElevatorControllerAlgorithm;
 
 pub struct NearestCarDispatchController {
+    is_initialized: bool,
     directions: Vec<Option<Direction>>, // Tracks each elevator’s current direction
 }
 
 impl NearestCarDispatchController {
-    pub fn new(num_elevators: usize) -> Self {
-        Self {
-            directions: vec![None; num_elevators], // Initialize directions as None for each elevator
+    fn new() -> Self {
+        NearestCarDispatchController {
+            is_initialized: false,
+            directions: Vec::new(),
         }
     }
 
@@ -121,6 +123,14 @@ impl NearestCarDispatchController {
 }
 
 impl ElevatorControllerAlgorithm for NearestCarDispatchController {
+    fn init(
+        &mut self,
+        elevator_count: usize, 
+        num_elevators: usize
+    ) {
+        self.directions = vec![None; num_elevators];
+    }
+
     fn update(
         &mut self,
         _delta_time: f32,
@@ -128,6 +138,10 @@ impl ElevatorControllerAlgorithm for NearestCarDispatchController {
         queue: &mut Queue,
         calls: Vec<Direction>,
     ) {
+        if !self.is_initialized {
+            panic!("NearestCarDispatchController is not initialized.");
+        }
+
         if elevators.len() != self.directions.len() {
             panic!("Mismatch between the number of elevators and directions tracked.");
         }
@@ -148,7 +162,7 @@ impl ElevatorControllerAlgorithm for NearestCarDispatchController {
                     best_elevator_idx, floor, direction
                 );
             } else {
-                println!("No available elevator for floor {} with direction {:?}", floor, direction);
+                // println!("No available elevator for floor {} with direction {:?}", floor, direction);
             }
         }
 

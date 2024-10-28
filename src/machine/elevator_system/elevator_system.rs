@@ -218,7 +218,7 @@ impl ElevatorSystem {
     }
 
     pub fn new(
-        controller: Box<dyn ElevatorControllerAlgorithm>,
+        mut controller: Box<dyn ElevatorControllerAlgorithm>,
         parameters: ElevatorSystemParameters,
     ) -> Self {
         let mut elevators = Vec::new();
@@ -233,6 +233,7 @@ impl ElevatorSystem {
         }
         let floor_count = parameters.floors.len();
 
+        controller.init(elevators.len(), floor_count);
 
         Self {
             floor_heights: parameters.floors,

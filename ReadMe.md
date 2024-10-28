@@ -20,3 +20,8 @@ lütfen vereceğiniz işlerin gerçek deadlinenını söylemek yerine daha erken
 
 Bi de lanet olsun ki [portage](https://wiki.gentoo.org/wiki/Portage) da [lto](https://wiki.gentoo.org/wiki/LTO) açık, pytorchun rust bindingleri derlenmiyor. eğer bikaç saat içinde sıkıntıyı çözüp derleyebilirsem yapay zeka algoritmasını da yazıcam.
 -(bikaç saat sonraki tuna) derlenmedi
+
+## Yapay Zeka konusunda
+normalde pytorch bindingleri ile rs torch kullancaktım ama derlerken sıkıntılar çıktı bilgisayarımda yer doldu falan ben de neural ağı baştan yazmaya karar verdim muhtemelen kurulum yapmaktan daha hızlı olucak. 
+
+İleriki versiyonlarda tüm algoritmaların statespace alması en mantıklısı olur

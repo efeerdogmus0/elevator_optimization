@@ -12,6 +12,12 @@ pub trait ElevatorControllerAlgorithm: Send + Sync{
     /// 
     /// * `delta_time` - The time passed since the last update, allowing 
     ///   for time-based calculations.
+    fn init(
+        &mut self,
+        elevator_count: usize,
+        floor_count: usize,
+    );
+
     fn update(
         &mut self,
         delta_time: f32,
