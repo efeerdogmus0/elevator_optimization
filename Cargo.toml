@@ -26,4 +26,5 @@ chrono = "0.4"
 csv = "1.1"
 plotters = "0.3"
 pyo3 = { version = "0.15", features = ["extension-module"] }
+clap = { version = "4.0", features = ["derive"] }
 

@@ -1,6 +1,10 @@
 use rand::Rng;
+use serde::{Serialize, Deserialize};
+use std::fs::File;
+use std::io::{self, Write, Read};
 
-#[derive(Clone)]
+
+#[derive(Clone, Serialize, Deserialize)]
 pub struct NeuralNetwork {
     // Weights and biases for each layer
     weights1: Vec<Vec<f32>>, // Input to first hidden layer
@@ -47,6 +51,19 @@ impl NeuralNetwork {
         }
 
         Self { weights1, biases1, weights2, biases2, weights3, biases3, weights4, biases4 }
+    }
+
+    pub fn save_to_file(&self, path: &str) -> io::Result<()> {
+        let file = File::create(path)?;
+        serde_json::to_writer(file, &self)?;
+        Ok(())
+    }
+
+    // Load the neural network from a JSON file
+    pub fn load_from_file(path: &str) -> io::Result<Self> {
+        let file = File::open(path)?;
+        let network = serde_json::from_reader(file)?;
+        Ok(network)
     }
 
     // Forward propagation with three hidden layers

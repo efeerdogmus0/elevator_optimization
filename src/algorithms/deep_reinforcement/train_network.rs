@@ -1,3 +1,4 @@
+use pyo3::exceptions::socket::timeout;
 use rand::seq::index::IndexVec;
 
 use crate::machine::ElevatorSystem;
@@ -8,14 +9,22 @@ use super::neural::NeuralNetwork;
 
 pub fn reward(
     system: &ElevatorSystem,
+    is_timed_out: bool,
 ) -> f32{
-    -system.get_total_wait_time() -system.final_kwh() * 2.7
+
+    // zaman aşımının cezası var
+    if is_timed_out {
+        return -system.get_total_wait_time() -system.final_kwh() * 10.;
+    }
+
+    -system.get_total_wait_time() -system.final_kwh()
 }
 
 fn run_generation(
     networks: &mut Vec<NeuralControlAlgorithm>,
     population_size: usize,
     run_per_network: usize,
+    timeout: u64,
 ) -> Vec<f32> {
     let mut scores = vec![0.0; population_size];
     for i in 0..population_size {
@@ -24,11 +33,17 @@ fn run_generation(
             let mut system = ElevatorSystem::from_file(controller, "param/system_parameters.yaml")
                 .expect("Failed to create elevator system");
 
+            let start_time = std::time::Instant::now();
+            let mut timed_out = false;
             while system.update() {
-
+                if start_time.elapsed().as_secs() > timeout {
+                    timed_out = true;
+                    println!("Timed out");
+                    break;
+                }
             }
 
-            scores[i] += reward(&system);
+            scores[i] += reward(&system, timed_out);
         }
         scores[i] /= run_per_network as f32;
     }
@@ -89,13 +104,14 @@ fn next_generation(
     new_gen
 }
 
-pub fn train(
+pub fn train_network(
     generation_count: usize,
     population_size: usize,
     mutation_prob: f32,
     mutation_amount: f32,
     run_per_network: usize,
     evolutionary_pressure: f32,
+    timeout: u64,
 ) -> NeuralNetwork {
     if evolutionary_pressure < 0.0 || evolutionary_pressure > 1.0 {
         panic!("Invalid evolutionary pressure value.");
@@ -107,12 +123,26 @@ pub fn train(
     }
 
     for i in 0..generation_count {
-        let mut scores = run_generation(&mut networks, population_size, run_per_network);
+        let mut scores = run_generation(
+            &mut networks, 
+            population_size, 
+            run_per_network, 
+            timeout
+        );
+
         sort_by_score(&mut networks, &mut scores, population_size);
         println!("Generation {} - Best score: {:.2}", generation_count, scores[0]);
 
+
+        // sonuncu jenerasyondaysak mutasyona gerek yok
         if i == generation_count - 1 { break; }
-        networks = next_generation(networks, population_size, mutation_prob, mutation_amount, evolutionary_pressure);
+        networks = next_generation(
+            networks, 
+            population_size, 
+            mutation_prob, 
+            mutation_amount, 
+            evolutionary_pressure
+        );
     }  
 
     networks[0].get_network().clone()

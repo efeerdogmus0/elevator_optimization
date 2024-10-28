@@ -12,4 +12,4 @@ pub use controller::ElevatorControllerAlgorithm;
 pub use simple_algorithm::SimpleElevatorController;
 pub use nearest_car_algorithm::NearestCarDispatchController;
 // pub use simple_collective_control_algorithm::SimpleCollectiveControl;
-
+pub use deep_reinforcement::train_network;
