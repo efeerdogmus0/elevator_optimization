@@ -17,7 +17,8 @@ fn main() {
         .expect("Failed to create elevator system");
 
     let start = Instant::now();
-    loop {
+    for _ in 0..10 {
+        println!("##### New loop");
         system.update();
         // if start.elapsed().as_secs() > 60 {
         //     break;
