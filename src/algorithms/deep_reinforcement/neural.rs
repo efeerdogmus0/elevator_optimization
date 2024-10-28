@@ -1,5 +1,6 @@
 use rand::Rng;
 
+#[derive(Clone)]
 pub struct NeuralNetwork {
     // Weights and biases for each layer
     weights1: Vec<Vec<f32>>, // Input to first hidden layer
@@ -99,99 +100,57 @@ impl NeuralNetwork {
 
 
 impl NeuralNetwork {
-    // Mean Squared Error (MSE) Loss
-    pub fn calculate_loss(&self, output: &Vec<f32>, target: &Vec<f32>) -> f32 {
-        let mut sum = 0.0;
-        for i in 0..output.len() {
-            sum += (output[i] - target[i]).powi(2);
+    pub fn mutate_layer(
+        &self, 
+        layer: &Vec<Vec<f32>>, 
+        mut_prob: f32,
+        mut_amount: f32,
+    ) -> Vec<Vec<f32>> {
+        let mut rng = rand::thread_rng();
+        let mut new_layer = layer.clone();
+
+        for i in 0..layer.len() {
+            for j in 0..layer[i].len() {
+                if rng.gen::<f32>() < mut_prob {
+                    new_layer[i][j] += rng.gen_range(-mut_amount..mut_amount);
+                }
+            }
         }
-        sum / output.len() as f32
+        new_layer 
     }
 
-    // Backpropagation to update weights and biases
-    pub fn train(&mut self, input: &Vec<f32>, target: &Vec<f32>, learning_rate: f32) {
-        // Forward pass
-        let hidden1_output = self.activate(&self.layer_forward(&input, &self.weights1, &self.biases1));
-        let hidden2_output = self.activate(&self.layer_forward(&hidden1_output, &self.weights2, &self.biases2));
-        let hidden3_output = self.activate(&self.layer_forward(&hidden2_output, &self.weights3, &self.biases3));
-        let output = self.softmax(&self.layer_forward(&hidden3_output, &self.weights4, &self.biases4));
+    pub fn mutate_biases(
+        &self, 
+        biases: &Vec<f32>, 
+        mut_prob: f32,
+        mut_amount: f32,
+    ) -> Vec<f32> {
+        let mut rng = rand::thread_rng();
+        let mut new_biases = biases.clone();
 
-        // Output layer error and gradient
-        let mut output_error = vec![0.0; target.len()];
-        let mut output_delta = vec![0.0; target.len()];
-        for i in 0..output.len() {
-            output_error[i] = target[i] - output[i];
-            output_delta[i] = output_error[i] * output[i] * (1.0 - output[i]);
-        }
-
-        // Update weights4 and biases4
-        for i in 0..self.weights4.len() {
-            for j in 0..self.weights4[i].len() {
-                self.weights4[i][j] += learning_rate * output_delta[j] * hidden3_output[i];
+        for i in 0..biases.len() {
+            if rng.gen::<f32>() < mut_prob {
+                new_biases[i] += rng.gen_range(-mut_amount..mut_amount);
             }
         }
-        for j in 0..self.biases4.len() {
-            self.biases4[j] += learning_rate * output_delta[j];
-        }
+        new_biases 
+    }
 
-        // Hidden layer 3 error and gradient
-        let mut hidden3_error = vec![0.0; hidden3_output.len()];
-        let mut hidden3_delta = vec![0.0; hidden3_output.len()];
-        for i in 0..hidden3_output.len() {
-            for j in 0..output.len() {
-                hidden3_error[i] += output_delta[j] * self.weights4[i][j];
-            }
-            hidden3_delta[i] = hidden3_error[i] * if hidden3_output[i] > 0.0 { 1.0 } else { 0.0 };
-        }
-
-        // Update weights3 and biases3
-        for i in 0..self.weights3.len() {
-            for j in 0..self.weights3[i].len() {
-                self.weights3[i][j] += learning_rate * hidden3_delta[j] * hidden2_output[i];
-            }
-        }
-        for j in 0..self.biases3.len() {
-            self.biases3[j] += learning_rate * hidden3_delta[j];
-        }
-
-        // Hidden layer 2 error and gradient
-        let mut hidden2_error = vec![0.0; hidden2_output.len()];
-        let mut hidden2_delta = vec![0.0; hidden2_output.len()];
-        for i in 0..hidden2_output.len() {
-            for j in 0..hidden3_output.len() {
-                hidden2_error[i] += hidden3_delta[j] * self.weights3[i][j];
-            }
-            hidden2_delta[i] = hidden2_error[i] * if hidden2_output[i] > 0.0 { 1.0 } else { 0.0 };
-        }
-
-        // Update weights2 and biases2
-        for i in 0..self.weights2.len() {
-            for j in 0..self.weights2[i].len() {
-                self.weights2[i][j] += learning_rate * hidden2_delta[j] * hidden1_output[i];
-            }
-        }
-        for j in 0..self.biases2.len() {
-            self.biases2[j] += learning_rate * hidden2_delta[j];
-        }
-
-        // Hidden layer 1 error and gradient
-        let mut hidden1_error = vec![0.0; hidden1_output.len()];
-        let mut hidden1_delta = vec![0.0; hidden1_output.len()];
-        for i in 0..hidden1_output.len() {
-            for j in 0..hidden2_output.len() {
-                hidden1_error[i] += hidden2_delta[j] * self.weights2[i][j];
-            }
-            hidden1_delta[i] = hidden1_error[i] * if hidden1_output[i] > 0.0 { 1.0 } else { 0.0 };
-        }
-
-        // Update weights1 and biases1
-        for i in 0..self.weights1.len() {
-            for j in 0..self.weights1[i].len() {
-                self.weights1[i][j] += learning_rate * hidden1_delta[j] * input[i];
-            }
-        }
-        for j in 0..self.biases1.len() {
-            self.biases1[j] += learning_rate * hidden1_delta[j];
+    pub fn mutate(
+        &self,
+        mut_prob: f32,
+        mut_amount: f32,
+    ) -> Self {
+        Self {
+            weights1: self.mutate_layer(&self.weights1, mut_prob, mut_amount),
+            biases1: self.mutate_biases(&self.biases1, mut_prob, mut_amount),
+            weights2: self.mutate_layer(&self.weights2, mut_prob, mut_amount),
+            biases2: self.mutate_biases(&self.biases2, mut_prob, mut_amount),
+            weights3: self.mutate_layer(&self.weights3, mut_prob, mut_amount),
+            biases3: self.mutate_biases(&self.biases3, mut_prob, mut_amount),
+            weights4: self.mutate_layer(&self.weights4, mut_prob, mut_amount),
+            biases4: self.mutate_biases(&self.biases4, mut_prob, mut_amount),
         }
     }
+
 }

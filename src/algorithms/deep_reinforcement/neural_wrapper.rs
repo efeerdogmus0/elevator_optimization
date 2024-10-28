@@ -7,6 +7,7 @@ use crate::population::Boardable;
 use super::neural::NeuralNetwork;
 use super::state_space::{ SystemState, ElevatorState };
 
+#[derive(Clone)]
 pub struct NeuralControlAlgorithm {
     is_initialized: bool,
     network: NeuralNetwork,
@@ -15,13 +16,22 @@ pub struct NeuralControlAlgorithm {
 }
 
 impl NeuralControlAlgorithm  {
-    fn new() -> Self {
+    pub fn new() -> Self {
+        let network = NeuralNetwork::new(0, 0, 0);
+        Self::new_with_nn(network)
+    }
+
+    pub fn new_with_nn(network: NeuralNetwork) -> Self {
         NeuralControlAlgorithm {
-            is_initialized: false,
-            network: NeuralNetwork::new(0, 0, 0),
+            is_initialized: true,
+            network,
             floor_count: 0,
             elevator_count: 0,
         }
+    }
+
+    pub fn get_network(&self) -> &NeuralNetwork {
+        &self.network
     }
 
     fn send_targets(&self, network_output: Vec<f32>, elevators: &mut Vec<Elevator>) {

@@ -1,6 +1,7 @@
 use elevator_lib::algorithms::{ 
     SimpleElevatorController, 
     NearestCarDispatchController,
+    NeuralControlAlgorithm,
 };
 use elevator_lib::machine::ElevatorSystem;
 
@@ -14,7 +15,8 @@ fn main() {
     ");
 
     // let controller = Box::new(SimpleElevatorController::new());
-    let controller = Box::new(NearestCarDispatchController::new(2));
+    // let controller = Box::new(NearestCarDispatchController::new(2));
+    let controller = Box::new(NeuralControlAlgorithm::new());
 
     let mut system = ElevatorSystem::from_file(controller, "param/system_parameters.yaml")
         .expect("Failed to create elevator system");

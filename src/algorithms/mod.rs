@@ -7,6 +7,7 @@ mod nearest_car_algorithm;
 mod deep_reinforcement;
 // mod simple_collective_control_algorithm;
 
+pub use deep_reinforcement::NeuralControlAlgorithm;
 pub use controller::ElevatorControllerAlgorithm;
 pub use simple_algorithm::SimpleElevatorController;
 pub use nearest_car_algorithm::NearestCarDispatchController;
