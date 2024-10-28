@@ -36,7 +36,7 @@ pub fn get_calls(system: &ElevatorSystem) -> Vec<Option<i32>> {
 
 
 #[pymodule]
-fn elevator(py: Python, m: &PyModule) -> PyResult<()> {
+fn elevator_lib(py: Python, m: &PyModule) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(new_simple_system, m)?)?;
     m.add_class::<Elevator>()?;
     m.add_class::<ElevatorSystem>()?;

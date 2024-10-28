@@ -11,6 +11,7 @@ debug = true
 # Kütüphane olarak kullanılacak şekilde yapılandırma
 [lib]
 path = "src/lib.rs"
+crate-type = ["cdylib", "rlib"]
 
 [[bin]]
 name = "elevator_bin"

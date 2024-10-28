@@ -2,9 +2,6 @@ use elevator_lib::algorithms::SimpleElevatorController;
 use elevator_lib::machine::ElevatorSystem;
 
 
-use std::time::{ Instant };
-
-
 fn main() {
     println!("    
         elevator_optimization  Copyright (C) 2024  Tuna Gül
