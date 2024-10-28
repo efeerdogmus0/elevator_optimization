@@ -24,7 +24,7 @@ def test_simple_system(count=10):
 
 
 def main():
-    avg_energy_consumption, avg_wait_time = test_simple_system()
+    avg_energy_consumption, avg_wait_time = test_simple_system(20)
     print("Simple system energy consumption average: ", avg_energy_consumption)
     print("Simple system wait time average: ", avg_wait_time)
 
