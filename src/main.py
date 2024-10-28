@@ -12,7 +12,7 @@ def run_simple_system():
 
 def test_simple_system(count=10):
     total_kwh = 0
-    for _ in range(len(count)):
+    for _ in range(count):
         total_kwh += run_simple_system()
     return total_kwh / count
 

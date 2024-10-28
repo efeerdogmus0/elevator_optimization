@@ -12,7 +12,7 @@ pub fn new_simple_system() -> ElevatorSystem {
         under certain conditions;");
 
     let controller = Box::new(SimpleElevatorController::new());
-    let system = ElevatorSystem::from_file(controller, "param/elevator_system_test_parameters.yaml")
+    let system = ElevatorSystem::from_file(controller, "param/system_parameters.yaml")
         .expect("Failed to create elevator system");
 
     system
