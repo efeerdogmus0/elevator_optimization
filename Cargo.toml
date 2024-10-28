@@ -9,7 +9,7 @@ license = "GPL-3.0-or-later"
 path = "src/lib.rs"
 
 [[bin]]
-name = "elevator"
+name = "elevator_bin"
 path = "src/main.rs"
 
 [dependencies]

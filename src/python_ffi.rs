@@ -1,4 +1,3 @@
-use crate::*;
 use crate::machine::{ Elevator, ElevatorSystem, Direction };
 use crate::algorithms::SimpleElevatorController;
 use pyo3::prelude::*;
@@ -13,7 +12,7 @@ pub fn new_simple_system() -> ElevatorSystem {
         under certain conditions;");
 
     let controller = Box::new(SimpleElevatorController::new());
-    let mut system = ElevatorSystem::from_file(controller, "param/elevator_system_test_parameters.yaml")
+    let system = ElevatorSystem::from_file(controller, "param/elevator_system_test_parameters.yaml")
         .expect("Failed to create elevator system");
 
     system

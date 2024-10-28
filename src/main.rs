@@ -1,10 +1,8 @@
-use elevator_lib::*;
 use elevator_lib::algorithms::SimpleElevatorController;
 use elevator_lib::machine::ElevatorSystem;
 
 
-use std::time::{ Duration, Instant };
-use std::thread;
+use std::time::{ Instant };
 
 
 fn main() {

@@ -1,4 +1,3 @@
-use plotters::series::AreaSeries;
 
 use super::boardable::Boardable;
 use crate::machine::Elevator;

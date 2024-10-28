@@ -21,5 +21,4 @@ pub mod machine;
 pub mod algorithms;
 pub mod population;
 
-use pyo3::pyfunction;
 

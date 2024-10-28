@@ -7,7 +7,6 @@ use crate::population::{ Boardable, PopulationGenerator };
 use crate::algorithms::ElevatorControllerAlgorithm;
 
 use pyo3::prelude::*;
-use rand::seq::index;
 use std::error::Error;
 
 #[derive(Debug, Clone, PartialEq)]
