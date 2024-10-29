@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2024 Tuna Gül
 
-use super::boardable::Boardable;
+use super::transportable::Transportable;
 use super::human::{Human, Gender, HumanGroup};
 use super::weight_distribution::WeightDistribution;
 use super::commute_by_age::CommuteByAge;
@@ -82,11 +82,11 @@ impl PopulationGenerator {
         time: u32,
         delta_time: f32,
         hour_length: f32,
-    ) -> Vec<(usize, Box<dyn Boardable>)> {
+    ) -> Vec<(usize, Box<dyn Transportable>)> {
         // this returns a list of (floor and the entity)
 
         let mut rng = rand::thread_rng();
-        let mut generated_entities: Vec<(usize, Box<dyn Boardable>)> = Vec::new();
+        let mut generated_entities: Vec<(usize, Box<dyn Transportable>)> = Vec::new();
 
         // Determine the average number of passengers based on time
         let avg_passengers = self.avg_passenger_by_time
@@ -153,7 +153,7 @@ impl PopulationGenerator {
         rand::thread_rng().gen::<f32>() < probability
     }
 
-    fn create_human(&self, current_floor: usize, time: u32) -> Option<Box<dyn Boardable>> {
+    fn create_human(&self, current_floor: usize, time: u32) -> Option<Box<dyn Transportable>> {
         let gender = Self::generate_gender();
         let age = Self::generate_age();
 
@@ -179,7 +179,7 @@ impl PopulationGenerator {
         }
     }
 
-    fn create_human_group(&mut self, current_floor: usize, time: u32) -> Option<Box<dyn Boardable>> {
+    fn create_human_group(&mut self, current_floor: usize, time: u32) -> Option<Box<dyn Transportable>> {
         let destination_floor = Self::generate_destination(self.floor_count, current_floor);
         let mut members: Vec<Human> = Vec::new();
         let mut rng = rand::thread_rng();

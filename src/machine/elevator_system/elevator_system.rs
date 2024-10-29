@@ -3,7 +3,7 @@
 
 use crate::machine::elevator::{ Elevator, ElevatorParameters };
 use super::elevator_system_parameters::ElevatorSystemParameters;
-use crate::population::{ Boardable, PopulationGenerator };
+use crate::population::{ Transportable, PopulationGenerator };
 use crate::algorithms::ElevatorControllerAlgorithm;
 
 use pyo3::prelude::*;
@@ -18,7 +18,7 @@ pub enum Direction {
 }
 
 pub struct Queue {
-    entities: Vec<Vec<Box<dyn Boardable>>>,
+    entities: Vec<Vec<Box<dyn Transportable>>>,
     wait_times: Vec<f32>,
 }
 
@@ -47,24 +47,24 @@ impl Queue {
         self.entities[floor].is_empty()
     }
 
-    pub fn get(&mut self, floor: usize, entity_idx: usize) -> &Box<dyn Boardable> {
+    pub fn get(&mut self, floor: usize, entity_idx: usize) -> &Box<dyn Transportable> {
         &self.entities[floor][entity_idx]
     }
 
-    pub fn get_mut(&mut self, floor: usize, entity_idx: usize) -> &mut Box<dyn Boardable> {
+    pub fn get_mut(&mut self, floor: usize, entity_idx: usize) -> &mut Box<dyn Transportable> {
         &mut self.entities[floor][entity_idx]
     }
 
-    pub fn remove(&mut self, floor: usize, entity_idx: usize) -> Option<Box<dyn Boardable>> {
+    pub fn remove(&mut self, floor: usize, entity_idx: usize) -> Option<Box<dyn Transportable>> {
         if self.entities[floor].is_empty() {
             return None;
         }
         let entity = self.entities[floor].remove(entity_idx);
-        self.wait_times.push(entity.get_wait_time());
+        self.wait_times.push(entity.get_queue_wait());
         Some(entity)
     }
 
-    pub fn add(&mut self, floor: usize, entity: Box<dyn Boardable>) {
+    pub fn add(&mut self, floor: usize, entity: Box<dyn Transportable>) {
         self.entities[floor].push(entity);
     }
 
@@ -72,11 +72,11 @@ impl Queue {
         self.entities.len()
     }
 
-    pub fn get_floor_queue(&self, floor: usize) -> &Vec<Box<dyn Boardable>> {
+    pub fn get_floor_queue(&self, floor: usize) -> &Vec<Box<dyn Transportable>> {
         &self.entities[floor]
     }
 
-    pub fn get_floor_queue_mut(&mut self, floor: usize) -> &mut Vec<Box<dyn Boardable>> {
+    pub fn get_floor_queue_mut(&mut self, floor: usize) -> &mut Vec<Box<dyn Transportable>> {
         &mut self.entities[floor]
     }
 
@@ -302,39 +302,9 @@ impl ElevatorSystem {
                     }
                     break;
                 }
-
-                else {
-                    panic!("
-                        1. The Industrial Revolution and its consequences have been 
-                        a disaster for the human race. They have greatly increased 
-                        the life-expectancy of those of us who live in “advanced” 
-                        countries, but they have destabilized society, have made life 
-                        unfulfilling, have subjected human beings to indignities, have 
-                        led to widespread psychological suffering (in the Third World 
-                        to physical suffering as well) and have inflicted severe damage 
-                        on the natural world. The continued development of technology 
-                        will worsen the situation. It will certainly subject human beings 
-                        to greater indignities and inflict greater damage on the natural 
-                        world, it will probably lead to greater social disruption and 
-                        psychological suffering, and it may lead to increased physical 
-                        suffering even in “advanced” countries.
-
-                        2. The industrial-technological system may survive or it may break
-                        down. If it survives, it MAY eventually achieve a low level of
-                        physical and psychological suffering, but only after passing through
-                        a long and very painful period of adjustment and only at the cost of
-                        permanently reducing human beings and many other living organisms to
-                        engineered products and mere cogs in the social machine. Furthermore,
-                        if the system survives, the consequences will be inevitable: There is
-                        no way of reforming or modifying the system so as to prevent it from
-                        depriving people of dignity and autonomy.
-
-                        https://www.washingtonpost.com/wp-srv/national/longterm/unabomber/manifesto.text.htm
-                    ");
-                }
             }
         }
+
         call_buttons
     }
-
 }

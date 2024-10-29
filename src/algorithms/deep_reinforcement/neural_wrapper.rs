@@ -5,7 +5,7 @@ use pyo3::ffi::printfunc;
 
 use crate::machine::{ Elevator, Direction, Queue };
 use crate::algorithms::ElevatorControllerAlgorithm;
-use crate::population::Boardable;
+use crate::population::Transportable;
 
 use super::neural::NeuralNetwork;
 use super::state_space::{ SystemState, ElevatorState };

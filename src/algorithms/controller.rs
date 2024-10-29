@@ -2,7 +2,7 @@
 // Copyright (C) 2024 Tuna Gül
 
 use crate::machine::{ Elevator, Direction, Queue };
-use crate::population::Boardable;
+use crate::population::Transportable;
 
 pub trait ElevatorControllerAlgorithm: Send + Sync{
     /// Updates the state of the elevator system.

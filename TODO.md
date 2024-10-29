@@ -1,29 +1,6 @@
 # Yakın Gelecek
 
 ## Unutmamak için kenara yazdığım ufak işler
-### Done
-- [x] motor speed pid private olcak
-- [x] TnM ve voltage değerlerinin her değerde aynı olduğuna emin ol
-- [x] PID parametreleri
-- [x] PID integral limit
-- [x] Motor parametreleri
-- [x] License (copyleft)
-- [x] Grafik plot, pid ve testler için inanılmaz önemli
-- [x] Motor PID
-- [x] Büyük motor güncellemesinden sonra elevator kodları elden geçmeli
-- [x] asansör height pid limitleri ayarla
-- [x] Popülasyon temelleri
-- [x] Yiğitin popülasyon hesaplamalarını geçir
-- [x] Kasnak çevre hız hesabı
-- [x] gearbox test et
-- [x] motor yükü kaldırabiliyor mu test et (motorda max force var)
-
-### Son 7.5
-- [x] time step ve time değişiklikleri (tahmini 1 saat)
-- [x] popülasyon yaratılışını düzelt (tahmini 2 saat)
-- [x] basit algoritma ekle (tahmini 1 saat)
-- [x] Wait for elevators to empty out at the end
-- [ ] yapay zeka ekle (tahmini 6 saat)
 - [ ] floorların yüksekliğe göre sıralı olduğuna emin ol
 
 
@@ -34,25 +11,27 @@
 - [x] Motor girdi/çıktı ve enerji bağlantısı daha gerçekçi bir fonksiyonla değişebilir (şu an doğrusal)
 - [x] Motorun gearbox ratiosu
 - [x] Motorun özelliklerini temsil eden fonksiyon geliştirilebilir
-- [ ] Sonraki hayatında sansörlere gidiş yönü ekle (dün gece beyin ölümüm gerçekleştiği için 
-        maalesef bu ömürde yazmam mümkün değil)
+- [ ] Asansörlere gidiş yönü ekle
+- [ ] Binen insan sayısına göre bekleme süresi değişmeli
 
-## Simülasyon Gerçekliğini Arttıranlar
+## Popülasyon Hakkındakiler
+- [ ] Dağılımları içerecek bir Distribution classı
+- [ ] İnsanların asansör içindeki insanların bekleme süresini kaydet
+- [ ] asansör bekleyen insan sayısı / asansöre binme hızı grafiği
+- [ ] asansör içinde insan hareketlerinin düzensizliğiden kaynaklı rastgelelik ekle
 - [x] insan yoğunluğu/saat ve yaş/saat grafiği
 - [x] yaş/kütle grafikleri 
-- [ ] asansör bekleyen insan sayısı / asansöre binme hızı grafiği
-- [ ] bir kişinin ortalam gittiği kat sayısı / bina uzunluğu
-- [ ] asansör içinde insan hareketlerinin düzensizliğiden kaynaklı rastgelelik ekle
 
 ## Asansör Yönetim Algoritmaları
-- [ ] Genetik Algoritma
-- [ ] Q Learning
-- [ ] Deep Q Learning
-- [ ] Normal Asansör Algoritmaları
+- [x] Deep Q Learning
+- [ ] Simple Control
+- [ ] Nearest Car Algorithm
+- [ ] Two-Way Traffic Control
+- [ ] Group Control
+- [ ] Destination Control
+- [ ] Adaptive Control
 
 
-## Yarışmadan Sonra Toparlamada Eklenecekler
-- [ ] Direction enumu field olarak elevatora eklenmeli
-- [ ] Asansör içinde beklenen süre kayıt edilmeli
+
 
 

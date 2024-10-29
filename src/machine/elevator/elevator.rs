@@ -3,7 +3,7 @@
 
 use crate::machine::pid_controller::PIDController;
 use crate::machine::motor::ElevatorMotor;
-use crate::population::Boardable;
+use crate::population::Transportable;
 use super::elevator_parameters::ElevatorParameters;
 use crate::util::LinePlotter;
 
@@ -25,7 +25,7 @@ pub struct Elevator {
     motor: ElevatorMotor,
     // simulation-related
     gravity: f32,
-    entities: Vec<Box<dyn Boardable>>,
+    entities: Vec<Box<dyn Transportable>>,
     target_idx: usize,
     area: f32,
     current_area: f32,
@@ -232,7 +232,7 @@ impl Elevator {
         }
     }
 
-    pub fn can_fit(&self, entity: &Box<dyn Boardable>) -> bool {
+    pub fn can_fit(&self, entity: &Box<dyn Transportable>) -> bool {
         if self.current_load + entity.get_weight() > self.max_load {
             // println!("Weight limit exceeded");
             return false;
@@ -245,7 +245,7 @@ impl Elevator {
         return true;
     }
 
-    pub fn load(&mut self, entity: Box<dyn Boardable>) {
+    pub fn load(&mut self, entity: Box<dyn Transportable>) {
         // this is also checked in the elevator 
         // system so nothing should go wrong
         if !self.can_fit(&entity) {

@@ -3,7 +3,7 @@
 
 use crate::machine::{ Elevator, Direction, Queue };
 use super::ElevatorControllerAlgorithm;
-use crate::population::Boardable;
+use crate::population::Transportable;
 
 pub struct SimpleElevatorController {
     up_elevator_idx: usize,

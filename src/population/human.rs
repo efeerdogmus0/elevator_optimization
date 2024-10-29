@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2024 Tuna Gül
 
-use super::boardable::Boardable;
+use super::transportable::Transportable;
 use crate::machine::Elevator;
 
 #[derive(Clone)]
@@ -10,6 +10,7 @@ pub enum Gender {
     Female,
 }
 
+
 #[derive(Clone)]
 pub struct Human {
     weight: f32,
@@ -17,11 +18,13 @@ pub struct Human {
     area: f32,
     gender: Gender,
     destination_floor: usize,
-    waiting_time: f32,
+    queue_wait: f32,
+    transport_wait: f32,
+    is_boarded: bool,
 }
 
-impl Boardable for Human {
-    fn clone_box(&self) -> Box<dyn Boardable> {
+impl Transportable for Human {
+    fn clone_box(&self) -> Box<dyn Transportable> {
         Box::new(self.clone())
     }
 
@@ -39,18 +42,27 @@ impl Boardable for Human {
         2.0 
     }
 
-    fn get_wait_time(&self) -> f32 {
-        self.waiting_time
-    }
-
-    fn increase_wait_time(&mut self, increment: f32) {
-        self.waiting_time += increment;
-    }
-
     fn get_destination(&self) -> usize {
         self.destination_floor
     }
+
+    fn increase_wait_time(&mut self, increment: f32) {
+        self.queue_wait += increment;
+    }
+
+    fn get_queue_wait(&self) -> f32 {
+        self.queue_wait
+    }
+
+    fn get_transport_wait(&self) -> f32 {
+        self.queue_wait
+    }
+
+    fn board(&mut self) {
+        self.is_boarded = true;
+    }
 }
+
 
 impl Human {
     pub fn new(
@@ -66,12 +78,10 @@ impl Human {
             gender,
             area,
             destination_floor,
-            waiting_time: 0.,
+            queue_wait: 0.,
+            transport_wait: 0.,
+            is_boarded: false,
         }
-    }
-
-    pub fn increment_waiting_time(&mut self, increment: f32) {
-        self.waiting_time += increment;
     }
 }
 
@@ -89,38 +99,40 @@ impl HumanGroup {
     }
 }
 
-impl Boardable for HumanGroup {
-    fn clone_box(&self) -> Box<dyn Boardable> {
+impl Transportable for HumanGroup {
+    fn clone_box(&self) -> Box<dyn Transportable> {
         Box::new(self.clone())
     }
 
     fn get_area(&self) -> f32 {
-        // Sum up the area occupied by each human in the group
         self.members.iter().map(|h| h.area).sum()
     }
 
     fn get_weight(&self) -> f32 {
-        // Sum up the weight of each human in the group
         self.members.iter().map(|h| h.weight).sum()
     }
 
     fn calculate_boarding_time(&self, elevator: &Elevator) -> f32 {
-        // Calculate boarding time for the entire group
-        // Placeholder value based on group size or other logic
         self.members.len() as f32 * 2.0 
-    }
-
-    fn get_wait_time(&self) -> f32 {
-        // Calculate average or total waiting time for the group if needed
-        self.members.iter().map(|h| h.waiting_time).sum::<f32>() / self.members.len() as f32
-    }
-
-    fn increase_wait_time(&mut self, increment: f32) {
-        // Increment the waiting time for each member of the group
-        self.members.iter_mut().for_each(|h| h.waiting_time += increment); 
     }
 
     fn get_destination(&self) -> usize {
         self.members[0].destination_floor
+    }
+
+    fn increase_wait_time(&mut self, increment: f32) {
+        self.members.iter_mut().for_each(|h| h.queue_wait += increment); 
+    }
+
+    fn get_queue_wait(&self) -> f32 {
+        self.members.iter().map(|h| h.queue_wait).sum::<f32>() / self.members.len() as f32
+    }
+
+    fn get_transport_wait(&self) -> f32 {
+        self.members.iter().map(|h| h.queue_wait).sum::<f32>() / self.members.len() as f32
+    }
+
+    fn board(&mut self) {
+        self.members.iter_mut().for_each(|h| h.is_boarded = true);
     }
 }
